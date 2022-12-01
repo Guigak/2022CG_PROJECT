@@ -1,10 +1,13 @@
-#include "game_framework.cpp"
+#include "dummy_state.h"
 
-class dummy_state : State {
-	// 사용할 객체들 선언
-	int notes;
-public:
-	void enter() {
-	}
+void Dummy_state::enter() {
+	cout << "dummy_enter\n";
+}
 
-};
+void Dummy_state::update() {
+	cout << "dummy_update\n";
+}
+
+void Dummy_state::draw() {
+	cout << "dummy_draw\n";
+}

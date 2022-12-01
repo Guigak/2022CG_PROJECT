@@ -24,9 +24,6 @@
     <ClCompile Include="test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="event_class.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">
@@ -35,5 +32,25 @@
     <None Include="vertex.glsl">
       <Filter>소스 파일</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="total.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="game_framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="event.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="stack.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="dummy_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

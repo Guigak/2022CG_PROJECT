@@ -11,7 +11,8 @@
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
-#include "game_framework.cpp"
+#include "total.h"
+
 
 constexpr double PI = 3.1415926;
 
@@ -78,9 +79,14 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glutMainLoop();
 }
 
+
+Dummy_state dummy;
+
+
 void Initvalue() {
-	State dummy;
-	game_framework.init(dummy);
+	State* state;
+	state = &dummy;
+	game_framework.init(state);
 	glutTimerFunc(1, Timer, 1);
 }
 
@@ -217,7 +223,7 @@ char* filetobuf(const char* file)
 }
 
 GLvoid Mouse(int button, int state, int x, int y) {
-	Event evnt(MOUSE, ' ', button, x, y, state);
+	Event evnt(event_type::MOUSE, ' ', button, x, y, state);
 	game_framework.handle_events(evnt);
 }
 

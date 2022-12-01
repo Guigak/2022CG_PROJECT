@@ -1,3 +1,4 @@
+#pragma once
 
 enum event_type { MOUSE, KEYBOARD, KEYBOARD_UP, SPECIAL, SPECIAL_UP, MOTION };
 
