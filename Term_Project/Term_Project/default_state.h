@@ -1,15 +1,37 @@
 #pragma once
+#include <gl/glew.h>
+#include <gl/freeglut.h>
+#include <gl/freeglut_ext.h>
+
+#include <glm/glm/glm.hpp>
+#include <glm/glm/ext.hpp>
+#include <glm/glm/gtc/matrix_transform.hpp>
+#include <glm/glm/gtc/type_ptr.hpp>
+
 #include "state.h"
 
+#include "vertices.h"
+
 class Default_state : public  State {
-	// 사용할 객체들 선언
-	int notes;
+private:
+	// default
+	GLuint* shader_program;
+	GLuint* vao;
+	GLuint* vbo;
+
+	// camera
+	GLfloat camera_x;
+	GLfloat camera_y;
+	GLfloat camera_z;
 public:
-	virtual void enter();
+	// default
+	virtual void enter(GLuint*, GLuint*, GLuint*);	// shader program, vao, vbo
 	virtual void pause();
 	virtual void resume();
 	virtual void exit();
 	virtual void handle_events(Event evnt);
 	virtual void update();
 	virtual void draw();
+	// useful
+	virtual void InitBuffer();
 };

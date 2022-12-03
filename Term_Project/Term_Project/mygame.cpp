@@ -4,13 +4,16 @@
 #include <iostream>
 #include <cstdio>
 #include <random>
-#include <gl/glew.h> //--- 필요한 헤더파일 include
+
+#include <gl/glew.h>
 #include <gl/freeglut.h>
 #include <gl/freeglut_ext.h>
+
 #include <glm/glm/glm.hpp>
 #include <glm/glm/ext.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
+
 #include "total.h"
 
 
@@ -63,7 +66,7 @@ GLuint vertexshader, fragmentshader; //--- 세이더 객체
 GLuint s_program;
 
 // vertex
-GLuint vao[4], vbo[8], ebo[2];
+GLuint vao[3], vbo[3];	// 0 - line / 1 - note / 2 - judge line
 
 // game framework
 Game_Framework game_framework;
@@ -89,9 +92,8 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glewExperimental = GL_TRUE;
 	glewInit();
 	InitShader();
-	glGenVertexArrays(4, vao); //--- VAO 를 지정하고 할당하기
-	glGenBuffers(8, vbo); //--- 2개의 VBO를 지정하고 할당하기
-	glGenBuffers(2, ebo);
+	glGenVertexArrays(3, vao);
+	glGenBuffers(3, vbo);
 	Initvalue();
 	InitBuffer();
 
@@ -169,13 +171,52 @@ double MouseToWindow_Y(int window_height, int y) {
 // glut
 GLvoid drawScene()
 {
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //--- 카메라 위쪽 방향
-	glClearColor(0.1, 0.1, 0.1, 1.0f);
+	glClearColor(1.0, 1.0, 1.0, 1.0f);
+	//glClearColor(0.1, 0.1, 0.1, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	// program //
+	glUseProgram(s_program);
 
-	game_framework.draw();
-	//glUseProgram(s_program);
+	// camera //
+	glm::vec3 cameraPos = glm::vec3(0.0, 0.0, 2.0); //--- 카메라 위치
+	glm::vec3 cameraDirection = glm::vec3(0.0f, 0.0f, 0.0f); //--- 카메라 바라보는 방향
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //--- 카메라 위쪽 방향
+	glm::mat4 view = glm::mat4(1.0f);
+	view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+	unsigned int viewLocation = glGetUniformLocation(s_program, "view"); //--- 뷰잉 변환 설정
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
+	// projection //
+	glm::mat4 projection = glm::mat4(1.0f);
+	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f);
+	//projection = glm::translate(projection, glm::vec3(0.0, 0.0, -2.0)); //--- 공간을 약간 뒤로 미뤄줌
+	unsigned int projectionLocation = glGetUniformLocation(s_program, "proj"); //--- 투영 변환 값 설정
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
+
+	// default //
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	unsigned int modelLocation = glGetUniformLocation(s_program, "model");
+	glm::mat4 TR = glm::mat4(1.0f);
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+	int objColorLocation = glGetUniformLocation(s_program, "color"); //--- object Color값 전달
+	glUniform3f(objColorLocation, 0.0, 0.5, 0.0);
+
+	// play line //
+
+	glBindVertexArray(vao[0]);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	for (int i = 0; i < 12; ++i) {
+		for (int j = 2 * i; j < 2 * i + 2; ++j) {
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+		}
+	}
+
+	//game_framework.draw();
 
 	glutSwapBuffers(); //--- 화면에 출력하기
 }
@@ -241,7 +282,12 @@ void InitShader()
 
 void InitBuffer()
 {
-	glBindVertexArray(vao[0]); //--- VAO를 바인드하기
+	glBindVertexArray(vao[0]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(line_v), line_v, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
 }
 
 void make_vertexShader()
@@ -286,7 +332,8 @@ void make_fragmentShader()
 
 // state
 void Initvalue() {
-	state = &dummy_state;
-	game_framework.init(state);
+	//state = &dummy_state;
+	state = &default_state;
+	game_framework.init(state, &s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }

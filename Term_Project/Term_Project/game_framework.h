@@ -1,4 +1,6 @@
 #pragma once
+#include <gl/glew.h>
+
 #include "event.h"
 #include "stack.h"
 #include "state.h"
@@ -10,10 +12,14 @@ class Game_Framework {
 	double frame_time = 0.0;
 	clock_t current_time = clock();
 
+	GLuint* shader_program;
+	GLuint* vao;
+	GLuint* vbo;
+
 public:
 	double get_frame_time();
 
-	void init(State* start_state);
+	void init(State* start_state, GLuint*, GLuint*, GLuint*);
 
 	void change_state(State* state);
 

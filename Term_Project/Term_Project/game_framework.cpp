@@ -3,10 +3,15 @@
 
 double Game_Framework::get_frame_time() { return frame_time; }
 
-void Game_Framework::init(State* start_state) {
+void Game_Framework::init(State* start_state, GLuint* program, GLuint* a, GLuint* b) {
 	running = true;
+
+	shader_program = program;
+	vao = a;
+	vbo = b;
+
 	stack.push(start_state);
-	start_state->enter();
+	start_state->enter(shader_program, vao, vbo);
 	current_time = clock();
 }
 
@@ -15,7 +20,7 @@ void Game_Framework::change_state(State* state) {
 		stack.top()->exit();
 		stack.pop();
 		stack.push(state);
-		state->enter();
+		state->enter(shader_program, vao, vbo);
 	}
 }
 
@@ -23,7 +28,7 @@ void Game_Framework::push_state(State* state) {
 	if (stack.size() > 0) {
 		stack.top()->pause();
 		stack.push(state);
-		state->enter();
+		state->enter(shader_program, vao, vbo);
 	}
 }
 

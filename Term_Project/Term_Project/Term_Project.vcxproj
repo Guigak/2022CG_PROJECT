@@ -133,6 +133,7 @@
     <ClCompile Include="game_framework.cpp" />
     <ClCompile Include="mygame.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="vertices.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl" />
@@ -146,6 +147,7 @@
     <ClInclude Include="stack.h" />
     <ClInclude Include="state.h" />
     <ClInclude Include="total.h" />
+    <ClInclude Include="vertices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
