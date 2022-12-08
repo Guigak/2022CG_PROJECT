@@ -300,6 +300,6 @@ void make_fragmentShader()
 void Initvalue() {
 	//state = &dummy_state;
 	state = &default_state;
-	game_framework.init(state, s_program);
+	game_framework.init(state, s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }

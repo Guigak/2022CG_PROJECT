@@ -10,7 +10,7 @@ using namespace std;
 class State {
 
 public:
-	virtual void enter(GLuint) { cout << "enter\n"; }
+	virtual void enter(GLuint, GLuint*, GLuint*) { cout << "enter\n"; }
 	virtual void pause() { cout << "pause\n"; }
 	virtual void resume() { cout << "resume\n"; }
 	virtual void exit() { cout << "exit\n"; }

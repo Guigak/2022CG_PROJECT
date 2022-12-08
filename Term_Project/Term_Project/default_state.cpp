@@ -2,8 +2,10 @@
 
 
 
-void Default_state::enter(GLuint program) {
+void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	shader_program = program;
+	vao = a;
+	vbo = b;
 
 	camera_x = 0.0;
 	camera_y = 1.0;
@@ -15,7 +17,7 @@ void Default_state::enter(GLuint program) {
 	selected_num = 0;
 	Turning = GL_FALSE;
 
-	GenBuffer();
+	//GenBuffer();
 	InitBuffer();
 }
 
@@ -28,8 +30,6 @@ void Default_state::resume() {
 }
 
 void Default_state::exit() {
-	delete[] vao;
-	delete[] vbo;
 }
 
 void Default_state::handle_events(Event evnt) {
@@ -39,8 +39,6 @@ void Default_state::handle_events(Event evnt) {
 		switch (evnt.key) {
 		case 'q':
 		case 'Q':
-			delete[] vao;
-			delete[] vbo;
 			std::exit(0);
 			break;
 		case 13:

@@ -13,11 +13,13 @@ class Game_Framework {
 	clock_t current_time = clock();
 
 	GLuint shader_program;
+	GLuint* vao;
+	GLuint* vbo;
 
 public:
 	double get_frame_time();
 
-	void init(State* start_state, GLuint);
+	void init(State* start_state, GLuint, GLuint*, GLuint*);
 
 	void change_state(State* state);
 
