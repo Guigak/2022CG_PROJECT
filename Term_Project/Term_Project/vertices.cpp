@@ -6,24 +6,26 @@
 #define LINE_Y_MIDDLE 0.125
 #define LINE_Y_TUM 0.0625
 
+#define TRUGGER_Z -0.01
+
 
 
 // play line //
 GLfloat line_v[16][3] = {
-	{ -LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },	// left
-	{ -LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
+	{ -LINE_X_MIDDLE,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },	// left
+	{ -LINE_X_MIDDLE,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
 	{ -LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
 	{ -LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },
 	{ -LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
 	{ -LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 },
-	{ -LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
-	{ -LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 },
+	{ -LINE_X_MIDDLE,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
+	{ -LINE_X_MIDDLE,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 },
 	{ LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },	// right
 	{ LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
-	{ LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
-	{ LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },
-	{ LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
-	{ LINE_X_MIDDLE + LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 },
+	{ LINE_X_MIDDLE,	LINE_Y_MIDDLE - LINE_Y_TUM,	0.0 },
+	{ LINE_X_MIDDLE,	LINE_Y_MIDDLE + LINE_Y_TUM,	0.0 },
+	{ LINE_X_MIDDLE,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
+	{ LINE_X_MIDDLE,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 },
 	{ LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE - LINE_Y_TUM,	-20.0 },
 	{ LINE_X_MIDDLE - LINE_X_TUM,	LINE_Y_MIDDLE + LINE_Y_TUM,	-20.0 }
 };
@@ -57,6 +59,20 @@ GLuint line_l[24][3] = {
 
 
 
+// trigger rect //
+GLfloat trigger_v[8][3] = {
+	{ -LINE_X_MIDDLE, LINE_Y_MIDDLE, TRUGGER_Z },
+	{ -LINE_X_MIDDLE, LINE_Y_MIDDLE - LINE_Y_TUM, TRUGGER_Z },
+	{ LINE_X_MIDDLE, LINE_Y_MIDDLE - LINE_Y_TUM, TRUGGER_Z },
+	{ LINE_X_MIDDLE, LINE_Y_MIDDLE, TRUGGER_Z },
+	{ LINE_X_MIDDLE, LINE_Y_MIDDLE - LINE_Y_TUM, -LINE_Y_TUM * 3.0 },
+	{ LINE_X_MIDDLE, LINE_Y_MIDDLE, -LINE_Y_TUM * 3.0 },
+	{ -LINE_X_MIDDLE, LINE_Y_MIDDLE - LINE_Y_TUM, -LINE_Y_TUM * 3.0 },
+	{ -LINE_X_MIDDLE, LINE_Y_MIDDLE, -LINE_Y_TUM * 3.0 }
+};
+
+
+
 // vector //
 GLfloat cube_vt[6][3] = {
 	{ 0.0, 0.0, 1.0 },	// ¾Õ¸é
@@ -66,3 +82,13 @@ GLfloat cube_vt[6][3] = {
 	{ 0.0, 1.0, 0.0 },	// À­¸é
 	{ 0.0, -1.0, 0.0 }	// ¾Æ·§¸é
 };
+
+
+
+// text //
+void RenderString(float x, float y, void* font, unsigned char* string, float r, float g, float b) {
+	glColor3f(r, g, b);
+	glRasterPos2f(x, y);
+
+	glutBitmapString(font, string);
+}

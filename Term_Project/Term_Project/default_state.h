@@ -12,6 +12,8 @@
 
 #include "vertices.h"
 
+#define TUM_RADIAN 10
+
 class Default_state : public  State {
 private:
 	// default
@@ -23,6 +25,15 @@ private:
 	GLfloat camera_x;
 	GLfloat camera_y;
 	GLfloat camera_z;
+
+	// system
+	GLint camera_radian;	// * 3.0f
+
+	GLint max_selnum;
+	GLint selected_num;	// 0 - start, 1 - option
+
+	GLint Turning;
+
 public:
 	// default
 	virtual void enter(GLuint);	// shader program, vao, vbo

@@ -12,6 +12,8 @@ uniform float ambientLight;
 uniform vec3 viewPos;
 uniform vec3 tNormal;
 
+uniform int IsText;
+
 void main() {
 	vec3 ambient = ambientLight * lightColor;
 
@@ -28,6 +30,12 @@ void main() {
 	specularLight = pow(specularLight, shininess);
 	vec3 specular = specularLight * lightColor;
 
-	vec3 result = (ambient + diffuse + specular) * objectColor;
+	vec3 result;
+
+	if (IsText == 0)
+		result = (ambient + diffuse + specular) * objectColor;
+	else
+		result = objectColor;
+
 	FragColor = vec4(result, 1.0);
 }

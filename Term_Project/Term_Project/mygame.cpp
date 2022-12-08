@@ -224,7 +224,7 @@ GLvoid Special_Up(int key, int x, int y) {
 
 GLvoid Timer(int value) {
 	game_framework.run();
-	glutTimerFunc(1, Timer, 1);
+	glutTimerFunc(10, Timer, 1);
 	glutPostRedisplay();
 }
 
