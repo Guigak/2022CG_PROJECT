@@ -35,3 +35,5 @@ public:
 
 	void run();
 };
+
+Game_Framework& Get_Game_Framework();

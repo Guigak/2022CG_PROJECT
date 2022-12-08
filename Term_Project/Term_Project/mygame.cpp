@@ -68,8 +68,6 @@ GLuint s_program;
 // vertex
 GLuint vao[3], vbo[3];	// 0 - line / 1 - note / 2 - judge line
 
-// game framework
-Game_Framework game_framework;
 
 // state
 State* state;
@@ -184,7 +182,7 @@ double MouseToWindow_Y(int window_height, int y) {
 // glut
 GLvoid drawScene()
 {
-	game_framework.draw();
+	Get_Game_Framework().draw();
 }
 
 GLvoid Reshape(int w, int h) //--- 콜백 함수: 다시 그리기 콜백 함수 
@@ -194,36 +192,36 @@ GLvoid Reshape(int w, int h) //--- 콜백 함수: 다시 그리기 콜백 함수
 
 GLvoid Mouse(int button, int state, int x, int y) {
 	Event evnt(event_type::MOUSE, ' ', button, x, y, state);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Motion(int x, int y) {
 	Event evnt(MOTION, ' ', 0, x, y, 0);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Keyboard(unsigned char key, int x, int y) {
 	Event evnt(KEYBOARD, key, 0, x, y, 0);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Keyboard_Up(unsigned char key, int x, int y) {
 	Event evnt(KEYBOARD_UP, key, 0, x, y, 0);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Special(int key, int x, int y) {
 	Event evnt(SPECIAL, 0, key, x, y, 0);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Special_Up(int key, int x, int y) {
 	Event evnt(SPECIAL_UP, 0, key, x, y, 0);
-	game_framework.handle_events(evnt);
+	Get_Game_Framework().handle_events(evnt);
 }
 
 GLvoid Timer(int value) {
-	game_framework.run();
+	Get_Game_Framework().run();
 	glutTimerFunc(10, Timer, 1);
 	glutPostRedisplay();
 }
@@ -300,6 +298,6 @@ void make_fragmentShader()
 void Initvalue() {
 	//state = &dummy_state;
 	state = &default_state;
-	game_framework.init(state, s_program, vao, vbo);
+	Get_Game_Framework().init(state, s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }

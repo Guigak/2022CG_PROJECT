@@ -1,5 +1,8 @@
 #include "game_framework.h"
 
+Game_Framework game_framework;
+
+Game_Framework& Get_Game_Framework() { return game_framework; }
 
 double Game_Framework::get_frame_time() { return frame_time; }
 
