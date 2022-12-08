@@ -70,10 +70,6 @@ GLuint vao[3], vbo[3];	// 0 - line / 1 - note / 2 - judge line
 
 
 // state
-State* state;
-
-Dummy_state dummy_state;
-Default_state default_state;
 
 //
 
@@ -296,8 +292,7 @@ void make_fragmentShader()
 
 // state
 void Initvalue() {
-	//state = &dummy_state;
-	state = &default_state;
-	Get_Game_Framework().init(state, s_program, vao, vbo);
+	
+	Get_Game_Framework().init(&Get_Default_state(), s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }

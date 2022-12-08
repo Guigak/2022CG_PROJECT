@@ -50,3 +50,5 @@ public:
 	virtual void GenBuffer();
 	virtual void InitBuffer();
 };
+
+Default_state& Get_Default_state();

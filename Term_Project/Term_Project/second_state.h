@@ -47,3 +47,5 @@ public:
 	virtual void GenBuffer();
 	virtual void InitBuffer();
 };
+
+Second_state& Get_Second_state();

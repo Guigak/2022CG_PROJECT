@@ -1,7 +1,9 @@
 #include "default_state.h"
-#include "dummy_state.h"
+#include "second_state.h"
 
+Default_state default_state;
 
+Default_state& Get_Default_state() { return default_state; }
 
 void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	shader_program = program;
@@ -53,6 +55,9 @@ void Default_state::handle_events(Event evnt) {
 				break;
 			}
 		}
+		case 'c':
+			 
+			Get_Game_Framework().change_state(&Get_Second_state());
 			break;
 		default:
 			break;

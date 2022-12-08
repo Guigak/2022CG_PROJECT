@@ -1,6 +1,8 @@
 #include "second_state.h"
 
+Second_state second_state;
 
+Second_state& Get_Second_state() { return second_state; }
 
 void Second_state::enter(GLuint program) {
 	shader_program = program;
