@@ -44,7 +44,16 @@ void Default_state::handle_events(Event evnt) {
 			std::exit(0);
 			break;
 		case 13:
-			std::cout << "enter" << std::endl;
+		{
+			switch (selected_num) {
+			case 0:
+				break;
+			case 1:
+				break;
+			default:
+				break;
+			}
+		}
 			break;
 		default:
 			break;

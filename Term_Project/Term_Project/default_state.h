@@ -8,7 +8,10 @@
 #include <glm/glm/gtc/matrix_transform.hpp>
 #include <glm/glm/gtc/type_ptr.hpp>
 
+#include "game_framework.h"
+
 #include "state.h"
+#include "second_state.h"
 
 #include "vertices.h"
 
