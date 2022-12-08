@@ -15,9 +15,9 @@
 class Default_state : public  State {
 private:
 	// default
-	GLuint* shader_program;
-	GLuint* vao;
-	GLuint* vbo;
+	GLuint shader_program;
+	GLuint vao[3];
+	GLuint vbo[3];
 
 	// camera
 	GLfloat camera_x;
@@ -25,7 +25,7 @@ private:
 	GLfloat camera_z;
 public:
 	// default
-	virtual void enter(GLuint*, GLuint*, GLuint*);	// shader program, vao, vbo
+	virtual void enter(GLuint);	// shader program, vao, vbo
 	virtual void pause();
 	virtual void resume();
 	virtual void exit();
@@ -33,5 +33,6 @@ public:
 	virtual void update();
 	virtual void draw();
 	// useful
+	virtual void GenBuffer();
 	virtual void InitBuffer();
 };
