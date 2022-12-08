@@ -10,7 +10,7 @@
 #include <glm/ext.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include <mmsystem.h>
+#include <fmod.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -72,8 +72,6 @@ void checkCompileErrors(unsigned int shader, std::string type)
 
 void RenderString(float x, float y, void* font, unsigned char* string, float r, float g, float b)
 {
-	char* c;
-
 	glColor3f(r, g, b);
 	glRasterPos2f(x, y);
 

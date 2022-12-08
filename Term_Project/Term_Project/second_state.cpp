@@ -4,8 +4,10 @@ Second_state second_state;
 
 Second_state& Get_Second_state() { return second_state; }
 
-void Second_state::enter(GLuint program) {
+void Second_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	shader_program = program;
+	vao = a;
+	vbo = b;
 
 	camera_x = 0.0;
 	camera_y = 1.0;
@@ -17,7 +19,15 @@ void Second_state::enter(GLuint program) {
 	selected_num = 0;
 	Turning = GL_FALSE;
 
-	GenBuffer();
+	// Fmod
+	FMOD_System_Create(&soundsystem);
+	FMOD_System_Init(soundsystem, 32, FMOD_INIT_NORMAL, NULL);
+
+	FMOD_System_CreateSound(soundsystem, "Warzone.mp3", FMOD_LOOP_NORMAL, 0, &bgs);
+	FMOD_System_PlaySound(soundsystem, bgs, NULL, 0, &bgc);
+	FMOD_Channel_SetVolume(bgc, 0.5);
+
+	//GenBuffer();
 	InitBuffer();
 }
 
@@ -30,8 +40,6 @@ void Second_state::resume() {
 }
 
 void Second_state::exit() {
-	delete[] vao;
-	delete[] vbo;
 }
 
 void Second_state::handle_events(Event evnt) {
@@ -41,8 +49,6 @@ void Second_state::handle_events(Event evnt) {
 		switch (evnt.key) {
 		case 'q':
 		case 'Q':
-			delete[] vao;
-			delete[] vbo;
 			std::exit(0);
 			break;
 		case 13:
@@ -185,6 +191,7 @@ void Second_state::draw() {
 
 	TR_r1 = glm::rotate(TR_r1, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
 	TR_t = glm::translate(TR_t, glm::vec3(0.0, 0.0, camera_z - 3.0));
+	TR_r2 = glm::rotate(TR_r2, glm::radians(-30.0f), glm::vec3(0.0, 1.0, 0.0));
 
 	TR = TR_t * TR_r1 * TR;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
@@ -199,7 +206,7 @@ void Second_state::draw() {
 
 		for (int i = 0; i < 12; ++i) {
 			GLfloat* tcube_vt = cube_vt[i % 6];
-			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(glm::mat4(1.0f)))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
 			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
 
 			for (int j = 2 * i; j < 2 * i + 2; ++j) {
@@ -214,7 +221,7 @@ void Second_state::draw() {
 
 		for (int i = 0; i < 6; ++i) {
 			GLfloat* tcube_vt = cube_vt[i % 6];
-			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(glm::mat4(1.0f)))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
 			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
 
 			for (int j = 2 * i; j < 2 * i + 2; ++j) {
@@ -222,7 +229,6 @@ void Second_state::draw() {
 			}
 		}
 
-		TR_r2 = glm::rotate(TR_r2, glm::radians(-30.0f), glm::vec3(0.0, 1.0, 0.0));
 		TR = TR_r2 * TR;
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 	}

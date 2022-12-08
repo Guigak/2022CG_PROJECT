@@ -50,14 +50,12 @@ void Default_state::handle_events(Event evnt) {
 			case 0:
 				break;
 			case 1:
+				Get_Game_Framework().change_state(&Get_Second_state());
 				break;
 			default:
 				break;
 			}
 		}
-		case 'c':
-			 
-			Get_Game_Framework().change_state(&Get_Second_state());
 			break;
 		default:
 			break;
@@ -187,6 +185,7 @@ void Default_state::draw() {
 
 	TR_r1 = glm::rotate(TR_r1, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
 	TR_t = glm::translate(TR_t, glm::vec3(0.0, 0.0, camera_z - 3.0));
+	TR_r2 = glm::rotate(TR_r2, glm::radians(-30.0f), glm::vec3(0.0, 1.0, 0.0));
 
 	TR = TR_t * TR_r1 * TR;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
@@ -201,7 +200,7 @@ void Default_state::draw() {
 
 		for (int i = 0; i < 12; ++i) {
 			GLfloat* tcube_vt = cube_vt[i % 6];
-			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(glm::mat4(1.0f)))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
 			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
 
 			for (int j = 2 * i; j < 2 * i + 2; ++j) {
@@ -216,7 +215,7 @@ void Default_state::draw() {
 
 		for (int i = 0; i < 6; ++i) {
 			GLfloat* tcube_vt = cube_vt[i % 6];
-			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(glm::mat4(1.0f)))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
 			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
 
 			for (int j = 2 * i; j < 2 * i + 2; ++j) {
@@ -224,7 +223,6 @@ void Default_state::draw() {
 			}
 		}
 
-		TR_r2 = glm::rotate(TR_r2, glm::radians(-30.0f), glm::vec3(0.0, 1.0, 0.0));
 		TR = TR_r2 * TR;
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 	}
