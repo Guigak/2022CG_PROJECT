@@ -36,6 +36,9 @@ public:
 	void draw();
 
 	void run();
+
+	void Set_current_time();
+
 };
 
 Game_Framework& Get_Game_Framework();

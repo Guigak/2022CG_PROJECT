@@ -105,7 +105,7 @@ void Option_state::handle_events(Event evnt) {
 			switch (option_sel_num)
 			{
 			case 0: // note speed
-				if (note_speed < 100)
+				if (note_speed < 99)
 					note_speed++;
 				cout << note_speed << endl;
 				break;
@@ -312,7 +312,7 @@ void Option_state::draw() {
 		if(option_sel_num == 0)
 			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
 		RenderString(-0.2f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"< NOTE SPEED >", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(note_speed).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(note_speed / 10.0).substr(0, 3).c_str(), 1.0f, 0.0f, 0.0f);
 
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 		if (option_sel_num == 1)

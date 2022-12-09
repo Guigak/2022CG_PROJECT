@@ -6,6 +6,11 @@ Game_Framework& Get_Game_Framework() { return game_framework; }
 
 double Game_Framework::get_frame_time() { return frame_time; }
 
+void Game_Framework::Set_current_time() {
+	frame_time = (double)(clock() - current_time) / CLOCKS_PER_SEC;
+	current_time += frame_time * CLOCKS_PER_SEC;
+}
+
 void Game_Framework::init(State* start_state, GLuint program, GLuint* a, GLuint* b) {
 	running = true;
 
@@ -24,6 +29,7 @@ void Game_Framework::change_state(State* state) {
 		stack.pop();
 		stack.push(state);
 		state->enter(shader_program, vao, vbo);
+		Set_current_time();
 	}
 }
 
@@ -34,6 +40,7 @@ void Game_Framework::change_state(State* state, GLint song) {
 		stack.pop();
 		stack.push(state);
 		state->enter(shader_program, vao, vbo, song);
+		Set_current_time();
 	}
 }
 
@@ -42,6 +49,7 @@ void Game_Framework::push_state(State* state) {
 		stack.top()->pause();
 		stack.push(state);
 		state->enter(shader_program, vao, vbo);
+		
 	}
 }
 
@@ -71,8 +79,7 @@ void Game_Framework::draw() {
 void Game_Framework::run() {
 	if (running) {
 		stack.top()->update();
-		frame_time = (double)(clock() - current_time) / CLOCKS_PER_SEC;
-		current_time += frame_time * CLOCKS_PER_SEC;
+		Set_current_time();
 	}
 	else {
 		while (stack.size() > 0) {
