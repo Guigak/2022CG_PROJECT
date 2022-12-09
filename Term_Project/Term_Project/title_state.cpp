@@ -55,18 +55,7 @@ void Title_state::handle_events(Event evnt) {
 			break;
 		case 13:
 		{
-			switch (selected_num) {
-			case 0:
-				Get_Game_Framework().change_state(&Get_Title_state());
-				break;
-			case 1:
-				break;
-			case 2:
-				Get_Game_Framework().change_state(&Get_Select_Made_state());
-				break;
-			default:
-				break;
-			}
+			state++;
 		}
 		break;
 		case 'm':
@@ -161,7 +150,19 @@ void Title_state::update() {
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
-			exit();
+			switch (selected_num) {
+			case 0:
+				Get_Game_Framework().change_state(&Get_Title_state());
+				break;
+			case 1:
+				break;
+			case 2:
+				Get_Game_Framework().change_state(&Get_Select_Made_state());
+				break;
+			default:
+				exit();
+				break;
+			}
 		}
 		break;
 	default:

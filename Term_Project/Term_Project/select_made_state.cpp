@@ -21,7 +21,10 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	max_selnum = 2;
 	selected_num = 0;
+	song_num = -1; 
+
 	Turning = GL_FALSE;
+	state = 0;
 
 	//fmod
 	FMOD_System_Create(&soundsystem);
@@ -36,7 +39,6 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	//GenBuffer();
 	InitBuffer();
 
-	opening();
 }
 
 void Select_Made_state::pause() {
@@ -55,7 +57,6 @@ void Select_Made_state::exit() {
 	FMOD_System_Close(soundsystem);
 	FMOD_System_Release(soundsystem);
 
-	closing();
 }
 
 void Select_Made_state::handle_events(Event evnt) {
@@ -65,7 +66,7 @@ void Select_Made_state::handle_events(Event evnt) {
 		switch (evnt.key) {
 		case 'q':
 		case 'Q':
-			std::exit(0);
+			Get_Game_Framework().quit();
 			break;
 		case 13:
 			if (!Turning) {
@@ -73,7 +74,10 @@ void Select_Made_state::handle_events(Event evnt) {
 				case 0:
 				case 1:
 				case 2:
-					Get_Game_Framework().change_state(&Get_Made_state(), selected_num);
+					song_num = selected_num;
+					state++;
+					next_state = &Get_Made_state();
+					//Get_Game_Framework().change_state(&Get_Made_state(), selected_num);
 					break;
 				default:
 					break;
@@ -82,7 +86,8 @@ void Select_Made_state::handle_events(Event evnt) {
 			break;
 		case 27:
 			if (!Turning) {
-				Get_Game_Framework().change_state(&Get_Title_state());
+				state = 2;
+				next_state = &Get_Title_state();
 			}
 			break;
 		default:
@@ -114,49 +119,81 @@ void Select_Made_state::handle_events(Event evnt) {
 }
 
 void Select_Made_state::update() {
-	// turn //
-	if (Turning == -1) {
-		camera_radian -= 1;
-
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
+	switch (state)
+	{
+	case 0:
+		brightness += Get_Game_Framework().get_frame_time() / 2;
+		if (brightness >= 1.0) {
+			brightness = 1.0;
+			state++;
 		}
-	}
-	else if (Turning == 1) {
-		camera_radian += 1;
+		break;
+	case 1:
+		// turn //
+		if (Turning == -1) {
+			camera_radian -= 1;
 
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
-		}
-	}
-
-	// sound
-	if (Turning) {
-		Soundplaying = GL_FALSE;
-		FMOD_Channel_Stop(bgc);
-	}
-	else {
-		if (!Soundplaying) {
-			switch (selected_num) {
-			case 0:
-				FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
-				break;
-			case 1:
-				FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
-				break;
-			case 2:
-				FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
-				break;
-			default:
-				break;
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
 			}
-
-			FMOD_Channel_SetVolume(bgc, 0.25);
-			Soundplaying = GL_TRUE;
 		}
+		else if (Turning == 1) {
+			camera_radian += 1;
+
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
+			}
+		}
+
+		// sound
+		if (Turning) {
+			Soundplaying = GL_FALSE;
+			FMOD_Channel_Stop(bgc);
+		}
+		else {
+			if (!Soundplaying) {
+				switch (selected_num) {
+				case 0:
+					FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
+					break;
+				case 1:
+					FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
+					break;
+				case 2:
+					FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
+					break;
+				default:
+					break;
+				}
+
+				FMOD_Channel_SetVolume(bgc, 0.25);
+				Soundplaying = GL_TRUE;
+			}
+		}
+		break;
+	case 2:
+		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		if (brightness <= 0.0) {
+			if (next_state != nullptr) {
+				if (song_num < 0) { // 선택된 곡이 없음
+					Get_Game_Framework().change_state(next_state);
+				}
+				else {
+					Get_Game_Framework().change_state(next_state, song_num);
+				}
+			}
+			else {
+				exit();
+			}
+		}
+		break;
+	default:
+		cout << "state가 start, run, end 상태가 아닌 다른상태가 되는 오류 발생" << endl;
+		break;
 	}
+	
 }
 
 void Select_Made_state::draw() {
@@ -282,7 +319,7 @@ void Select_Made_state::draw() {
 	}
 
 	// text //
-	if (!Turning && !Stating) {
+	if (!Turning && state == 1) {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 
@@ -327,24 +364,3 @@ void Select_Made_state::InitBuffer() {
 	glEnableVertexAttribArray(0);
 }
 
-void Select_Made_state::opening() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness += 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}
-
-void Select_Made_state::closing() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness -= 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}

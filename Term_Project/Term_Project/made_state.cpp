@@ -45,8 +45,9 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 
 	//GenBuffer();
 	InitBuffer();
-
-	opening();
+	state = 0;
+	next_state = nullptr;
+	song_num = 0;
 
 	//
 	switch (selected_song) {
@@ -135,7 +136,8 @@ void Made_state::handle_events(Event evnt) {
 			break;
 		case 27:
 			if (!Turning) {
-				Get_Game_Framework().change_state(&Get_Select_Made_state());
+				state++;
+				next_state = &Get_Select_Made_state();
 			}
 			break;
 		default:
@@ -187,22 +189,53 @@ void Made_state::handle_events(Event evnt) {
 }
 
 void Made_state::update() {
-	// turn //
-	if (Turning == -1) {
-		camera_radian -= 1;
-
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
+	switch (state)
+	{
+	case 0:
+		brightness += Get_Game_Framework().get_frame_time() / 2;
+		if (brightness >= 1.0) {
+			brightness = 1.0;
+			state++;
 		}
-	}
-	else if (Turning == 1) {
-		camera_radian += 1;
+		break;
+	case 1:
+		// turn //
+		if (Turning == -1) {
+			camera_radian -= 1;
 
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
+			}
 		}
+		else if (Turning == 1) {
+			camera_radian += 1;
+
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
+			}
+		}
+		break;
+	case 2:
+		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		if (brightness <= 0.0) {
+			if (next_state != nullptr) {
+				if (song_num < 0) { // 선택된 곡이 없음
+					Get_Game_Framework().change_state(next_state);
+				}
+				else {
+					Get_Game_Framework().change_state(next_state, song_num);
+				}
+			}
+			else {
+				exit();
+			}
+		}
+		break;
+	default:
+		cout << "state가 start, run, end 상태가 아닌 다른상태가 되는 오류 발생" << endl;
+		break;
 	}
 }
 
@@ -393,24 +426,3 @@ void Made_state::write_file() {
 	fclose(fp);
 }
 
-void Made_state::opening() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness += 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}
-
-void Made_state::closing() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness -= 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}

@@ -47,11 +47,14 @@ private:
 
 	GLint Turning;
 
-	GLboolean Stating;
+	GLint state;
 
 	clock_t start_time;
 
 	GLboolean Iswrited;
+
+	State* next_state;
+	GLint song_num;
 
 	// FMOD
 	FMOD_SYSTEM* soundsystem;
@@ -89,9 +92,6 @@ public:
 	virtual void InitBuffer();
 
 	// system
-	virtual void opening();
-	virtual void closing();
-
 	void write_file();
 };
 

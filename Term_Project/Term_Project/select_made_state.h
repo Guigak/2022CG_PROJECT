@@ -39,10 +39,13 @@ private:
 
 	GLint max_selnum;
 	GLint selected_num;	// 0 - start, 1 - option
+	GLint song_num;
 
 	GLint Turning;
 
-	GLboolean Stating;
+	GLint state; 
+	State* next_state;
+
 
 	// FMOD
 	FMOD_SYSTEM* soundsystem;
@@ -69,8 +72,6 @@ public:
 	virtual void InitBuffer();
 
 	// system
-	virtual void opening();
-	virtual void closing();
 };
 
 Select_Made_state& Get_Select_Made_state();

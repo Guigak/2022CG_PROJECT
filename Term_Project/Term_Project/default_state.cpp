@@ -51,16 +51,8 @@ void Default_state::handle_events(Event evnt) {
 			break;
 		case 13:
 			if (!Turning) {
-				switch (selected_num) {
-				case 0:
-					Get_Game_Framework().change_state(&Get_Default_state());
-					break;
-				case 1:
-					Get_Game_Framework().change_state(&Get_Second_state());
-					break;
-				default:
-					break;
-				}
+				state++;
+				
 			}
 			break;
 		case 27:
@@ -129,7 +121,17 @@ void Default_state::update() {
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
-			exit();
+			switch (selected_num) {
+			case 0:
+				Get_Game_Framework().change_state(&Get_Default_state());
+				break;
+			case 1:
+				Get_Game_Framework().change_state(&Get_Second_state());
+				break;
+			default:
+				exit();
+				break;
+			}
 		}
 		break;
 	default:
