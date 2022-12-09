@@ -36,6 +36,12 @@
     <ClCompile Include="second_state.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="title_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="select_made_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">
@@ -71,6 +77,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="second_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="select_made_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="title_state.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

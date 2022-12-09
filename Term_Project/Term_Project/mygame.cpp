@@ -292,7 +292,7 @@ void make_fragmentShader()
 
 // state
 void Initvalue() {
-	
-	Get_Game_Framework().init(&Get_Default_state(), s_program, vao, vbo);
+	//Get_Game_Framework().init(&Get_Title_state(), s_program, vao, vbo);
+	Get_Game_Framework().init(&Get_Select_Made_state(), s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }

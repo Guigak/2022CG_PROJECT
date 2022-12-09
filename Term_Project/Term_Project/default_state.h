@@ -11,7 +11,6 @@
 #include "game_framework.h"
 
 #include "state.h"
-#include "second_state.h"
 
 #include "vertices.h"
 
