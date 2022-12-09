@@ -150,6 +150,7 @@
     <ClCompile Include="default_state.cpp" />
     <ClCompile Include="dummy_state.cpp" />
     <ClCompile Include="game_framework.cpp" />
+    <ClCompile Include="made_state.cpp" />
     <ClCompile Include="mygame.cpp" />
     <ClCompile Include="second_state.cpp" />
     <ClCompile Include="select_made_state.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="dummy_state.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="game_framework.h" />
+    <ClInclude Include="made_state.h" />
     <ClInclude Include="second_state.h" />
     <ClInclude Include="select_made_state.h" />
     <ClInclude Include="stack.h" />

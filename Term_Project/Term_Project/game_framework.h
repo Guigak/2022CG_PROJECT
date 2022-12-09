@@ -23,6 +23,8 @@ public:
 
 	void change_state(State* state);
 
+	void change_state(State*, GLint);
+
 	void push_state(State* state);
 
 	void pop_state();

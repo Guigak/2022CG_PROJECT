@@ -1,12 +1,11 @@
+#include "Made_state.h"
 #include "select_made_state.h"
-#include "title_state.h"
-#include "made_state.h"
 
-Select_Made_state select_made_state;
+Made_state made_state;
 
-Select_Made_state& Get_Select_Made_state() { return select_made_state; }
+Made_state& Get_Made_state() { return made_state; }
 
-void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
+void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	shader_program = program;
 	vao = a;
 	vbo = b;
@@ -19,7 +18,7 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	camera_radian = 0;
 
-	max_selnum = 2;
+	max_selnum = 1;
 	selected_num = 0;
 	Turning = GL_FALSE;
 
@@ -33,21 +32,39 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	Soundplaying = GL_FALSE;
 
+	selected_song = s;
+
 	//GenBuffer();
 	InitBuffer();
 
 	opening();
+
+	//
+	switch (selected_song) {
+	case 0:
+		FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
+		break;
+	case 1:
+		FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
+		break;
+	case 2:
+		FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
+		break;
+	default:
+		break;
+	}
+	FMOD_Channel_SetVolume(bgc, 0.25);
 }
 
-void Select_Made_state::pause() {
+void Made_state::pause() {
 
 }
 
-void Select_Made_state::resume() {
+void Made_state::resume() {
 
 }
 
-void Select_Made_state::exit() {
+void Made_state::exit() {
 	FMOD_Channel_Stop(bgc);
 	FMOD_Sound_Release(soul);
 	FMOD_Sound_Release(insta);
@@ -58,7 +75,7 @@ void Select_Made_state::exit() {
 	closing();
 }
 
-void Select_Made_state::handle_events(Event evnt) {
+void Made_state::handle_events(Event evnt) {
 	switch (evnt.type) {
 	case KEYBOARD:
 	{
@@ -71,9 +88,8 @@ void Select_Made_state::handle_events(Event evnt) {
 			if (!Turning) {
 				switch (selected_num) {
 				case 0:
+					break;
 				case 1:
-				case 2:
-					Get_Game_Framework().change_state(&Get_Made_state(), selected_num);
 					break;
 				default:
 					break;
@@ -82,7 +98,7 @@ void Select_Made_state::handle_events(Event evnt) {
 			break;
 		case 27:
 			if (!Turning) {
-				Get_Game_Framework().change_state(&Get_Title_state());
+				Get_Game_Framework().change_state(&Get_Select_Made_state());
 			}
 			break;
 		default:
@@ -113,7 +129,7 @@ void Select_Made_state::handle_events(Event evnt) {
 	}
 }
 
-void Select_Made_state::update() {
+void Made_state::update() {
 	// turn //
 	if (Turning == -1) {
 		camera_radian -= 1;
@@ -131,35 +147,9 @@ void Select_Made_state::update() {
 			selected_num = camera_radian / TUM_RADIAN;
 		}
 	}
-
-	// sound
-	if (Turning) {
-		Soundplaying = GL_FALSE;
-		FMOD_Channel_Stop(bgc);
-	}
-	else {
-		if (!Soundplaying) {
-			switch (selected_num) {
-			case 0:
-				FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
-				break;
-			case 1:
-				FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
-				break;
-			case 2:
-				FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
-				break;
-			default:
-				break;
-			}
-
-			FMOD_Channel_SetVolume(bgc, 0.25);
-			Soundplaying = GL_TRUE;
-		}
-	}
 }
 
-void Select_Made_state::draw() {
+void Made_state::draw() {
 	// init //
 	InitBuffer();
 
@@ -281,35 +271,15 @@ void Select_Made_state::draw() {
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 	}
 
-	// text //
-	if (!Turning && !Stating) {
-		glUniform1i(IsText, 1);
-		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
-
-		switch (selected_num) {
-		case 0:
-			RenderString(-0.125f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Soulicious", 1.0f, 0.0f, 0.0f);
-			break;
-		case 1:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Insta Beat Vixens", 1.0f, 0.0f, 0.0f);
-			break;
-		case 2:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Kiss The Heavens", 1.0f, 0.0f, 0.0f);
-			break;
-		default:
-			break;
-		}
-	}
-
 	glutSwapBuffers();
 }
 
-void Select_Made_state::GenBuffer() {
+void Made_state::GenBuffer() {
 	glGenVertexArrays(3, vao);
 	glGenBuffers(3, vbo);
 }
 
-void Select_Made_state::InitBuffer() {
+void Made_state::InitBuffer() {
 	// play line //
 	glBindVertexArray(vao[0]);
 
@@ -327,7 +297,7 @@ void Select_Made_state::InitBuffer() {
 	glEnableVertexAttribArray(0);
 }
 
-void Select_Made_state::opening() {
+void Made_state::opening() {
 	Stating = GL_TRUE;
 
 	for (int i = 0; i < OPENINGTIME; ++i) {
@@ -338,7 +308,7 @@ void Select_Made_state::opening() {
 	Stating = GL_FALSE;
 }
 
-void Select_Made_state::closing() {
+void Made_state::closing() {
 	Stating = GL_TRUE;
 
 	for (int i = 0; i < OPENINGTIME; ++i) {

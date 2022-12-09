@@ -27,6 +27,16 @@ void Game_Framework::change_state(State* state) {
 	}
 }
 
+void Game_Framework::change_state(State* state, GLint song) {
+
+	if (stack.size() > 0) {
+		stack.top()->exit();
+		stack.pop();
+		stack.push(state);
+		state->enter(shader_program, vao, vbo, song);
+	}
+}
+
 void Game_Framework::push_state(State* state) {
 	if (stack.size() > 0) {
 		stack.top()->pause();

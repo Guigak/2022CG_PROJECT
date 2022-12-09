@@ -11,6 +11,7 @@ class State {
 
 public:
 	virtual void enter(GLuint, GLuint*, GLuint*) { cout << "enter\n"; }
+	virtual void enter(GLuint, GLuint*, GLuint*, GLint) { cout << "enter(for song)\n"; }
 	virtual void pause() { cout << "pause\n"; }
 	virtual void resume() { cout << "resume\n"; }
 	virtual void exit() { cout << "exit\n"; }
