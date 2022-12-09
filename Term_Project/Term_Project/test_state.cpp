@@ -1,11 +1,16 @@
-#include "title_state.h"
+#define _CRT_SECURE_NO_WARNINGS
+
+#include "test_state.h"
 #include "select_made_state.h"
-#include "option_state.h"
-Title_state title_state;
 
-Title_state& Get_Title_state() { return title_state; }
+#define NOTE_X_FIRST -0.75
+#define NOTE_TUM 0.5
 
-void Title_state::enter(GLuint program, GLuint* a, GLuint* b) {
+Test_state test_state;
+
+Test_state& Get_Test_state() { return test_state; }
+
+void Test_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	shader_program = program;
 	vao = a;
 	vbo = b;
@@ -21,95 +26,112 @@ void Title_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	max_selnum = 1;
 	selected_num = 0;
 	Turning = GL_FALSE;
-	state = 0;
-	Made = 0;
-	next_state = nullptr;
 
-	mode = -1;
+	//fmod
+	FMOD_System_Create(&soundsystem);
+	FMOD_System_Init(soundsystem, 32, FMOD_INIT_NORMAL, NULL);
+
+	FMOD_System_CreateSound(soundsystem, "Soulicious.mp3", FMOD_LOOP_OFF, 0, &soul);
+	FMOD_System_CreateSound(soundsystem, "Insta_Beat_Vixens.mp3", FMOD_LOOP_OFF, 0, &insta);
+	FMOD_System_CreateSound(soundsystem, "Kiss_The_Heavens.mp3", FMOD_LOOP_OFF, 0, &kiss);
+
+	Soundplaying = GL_FALSE;
+
+	selected_song = s;
+
+	note_num = 0;
+	max_notenum = 0;
+
+	IspressedA = GL_FALSE;
+	IspressedS = GL_FALSE;
+	IspressedD = GL_FALSE;
+	IspressedF = GL_FALSE;
+
+	// file
+	read_file();
 
 	//GenBuffer();
 	InitBuffer();
-
-	
+	state = 0;
+	next_state = nullptr;
 }
 
-void Title_state::pause() {
-
-}
-
-void Title_state::resume() {
+void Test_state::pause() {
 
 }
 
-void Title_state::exit() {
+void Test_state::resume() {
 
 }
 
-void Title_state::handle_events(Event evnt) {
-	if (state != 1)
-		return;
+void Test_state::exit() {
+	FMOD_Channel_Stop(bgc);
+	FMOD_Sound_Release(soul);
+	FMOD_Sound_Release(insta);
+	FMOD_Sound_Release(kiss);
+	FMOD_System_Close(soundsystem);
+	FMOD_System_Release(soundsystem);
+}
+
+void Test_state::handle_events(Event evnt) {
 	switch (evnt.type) {
 	case KEYBOARD:
 	{
 		switch (evnt.key) {
-		case 'q':
-		case 'Q':
-			Get_Game_Framework().quit();
-			break;
-		case 13:
-		{
-			switch (selected_num) {
-			case 0:
-				next_state = &Get_Title_state();
-				break;
-			case 1:
-				next_state = &Get_Option_state();
-				break;
-			case 2:
-				mode = 0;
-				next_state = &Get_Select_Made_state();
-				break;
-			case 3:
-				mode = 1;
-				next_state = &Get_Select_Made_state();
-				break;
-			default:
-				break;
-			}
-			state = 2;
-		}
-		break;
-		case 'm':
-			if (Made == 0) {
-				Made++;
-			}
-			else {
-				Made = 0;
-			}
-			break;
 		case 'a':
-			if (Made == 1) {
-				Made++;
+			if (!IspressedA) {
+
+				IspressedA = GL_TRUE;
 			}
-			else {
-				Made = 0;
+			break;
+		case 's':
+			if (!IspressedS) {
+
+				IspressedS = GL_TRUE;
 			}
 			break;
 		case 'd':
-			if (Made == 2) {
-				Made++;
-			}
-			else {
-				Made = 0;
+			if (!IspressedD) {
+
+				IspressedD = GL_TRUE;
 			}
 			break;
-		case 'e':
-			if (Made == 3) {
-				max_selnum = 3;
+		case 'f':
+			if (!IspressedF) {
+
+				IspressedF = GL_TRUE;
 			}
-			else {
-				Made = 0;
+			break;
+		case 13:
+			if (!Iswrited) {
+				Iswrited = GL_TRUE;
 			}
+			break;
+		case 27:
+			if (!Turning) {
+				state = 2;
+				next_state = &Get_Select_Made_state();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+	break;
+	case KEYBOARD_UP:
+	{
+		switch (evnt.key) {
+		case 'a':
+			IspressedA = GL_FALSE;
+			break;
+		case 's':
+			IspressedS = GL_FALSE;
+			break;
+		case 'd':
+			IspressedD = GL_FALSE;
+			break;
+		case 'f':
+			IspressedF = GL_FALSE;
 			break;
 		default:
 			break;
@@ -120,12 +142,14 @@ void Title_state::handle_events(Event evnt) {
 	{
 		switch (evnt.special_key) {
 		case GLUT_KEY_LEFT:
-			if (camera_radian != 0) {
+			if (selected_num == 1) {
+				selected_num = 0;
 				Turning = -1;
 			}
 			break;
 		case GLUT_KEY_RIGHT:
-			if (camera_radian != max_selnum * TUM_RADIAN) {
+			if (selected_num == 0) {
+				selected_num = 1;
 				Turning = 1;
 			}
 			break;
@@ -139,14 +163,33 @@ void Title_state::handle_events(Event evnt) {
 	}
 }
 
-void Title_state::update() {
+void Test_state::update() {
 	switch (state)
 	{
 	case 0:
 		brightness += Get_Game_Framework().get_frame_time() / 2;
 		if (brightness >= 1.0) {
 			brightness = 1.0;
-			state++;
+			state = 1;
+
+			//
+			switch (selected_song) {
+			case 0:
+				FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
+				break;
+			case 1:
+				FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
+				break;
+			case 2:
+				FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
+				break;
+			default:
+				break;
+			}
+
+			start_time = clock();
+			FMOD_Channel_SetVolume(bgc, 0.25);
+			Trans_playtime = glm::mat4(1.0f);
 		}
 		break;
 	case 1:
@@ -156,7 +199,6 @@ void Title_state::update() {
 
 			if (camera_radian % TUM_RADIAN == 0) {
 				Turning = 0;
-				selected_num = camera_radian / TUM_RADIAN;
 			}
 		}
 		else if (Turning == 1) {
@@ -164,20 +206,19 @@ void Title_state::update() {
 
 			if (camera_radian % TUM_RADIAN == 0) {
 				Turning = 0;
-				selected_num = camera_radian / TUM_RADIAN;
 			}
 		}
+
+		// time
+		Trans_playtime = glm::mat4(1.0f);
+		play_time = (float)(clock() - start_time) / 100.0;
+		Trans_playtime = glm::translate(Trans_playtime, glm::vec3(0.0, 0.0, play_time));
 		break;
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
-				if (mode < 0) {
-					Get_Game_Framework().change_state(next_state);
-				}
-				else {
-					Get_Game_Framework().change_state(next_state, mode);
-				}
+				Get_Game_Framework().change_state(next_state, 1);
 			}
 			else {
 				exit();
@@ -190,7 +231,7 @@ void Title_state::update() {
 	}
 }
 
-void Title_state::draw() {
+void Test_state::draw() {
 	// init //
 	InitBuffer();
 
@@ -312,38 +353,41 @@ void Title_state::draw() {
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 	}
 
-	// text //
-	if (!Turning && state == 1) {
-		glUniform1i(IsText, 1);
-		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
+	// note //
+	glBindVertexArray(vao[2]);
 
-		switch (selected_num) {
-		case 0:
-			RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"START", 1.0f, 0.0f, 0.0f);
-			break;
-		case 1:
-			RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"OPTION", 1.0f, 0.0f, 0.0f);
-			break;
-		case 2:
-			RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"MADE", 1.0f, 0.0f, 0.0f);
-			break;
-		case 3:
-			RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"TEST", 1.0f, 0.0f, 0.0f);
-			break;
-		default:
-			break;
+	for (int k = 0; k < max_notenum; ++k) {
+		if (noteinfos[k].playline == 0) {
+			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+		}
+		else {
+			glUniform3f(objColorLocation, 0.0, 0.0, 1.0);
+		}
+
+		TR = glm::mat4(1.0f);
+		TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Trans_playtime * noteinfos[k].Trans_time * TR;
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+		for (int i = 0; i < 6; ++i) {
+			GLfloat* tcube_vt = cube_vt[i % 6];
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+			for (int j = 2 * i; j < 2 * i + 2; ++j) {
+				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+			}
 		}
 	}
 
 	glutSwapBuffers();
 }
 
-void Title_state::GenBuffer() {
+void Test_state::GenBuffer() {
 	glGenVertexArrays(3, vao);
 	glGenBuffers(3, vbo);
 }
 
-void Title_state::InitBuffer() {
+void Test_state::InitBuffer() {
 	// play line //
 	glBindVertexArray(vao[0]);
 
@@ -359,5 +403,63 @@ void Title_state::InitBuffer() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(trigger_v), trigger_v, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+
+	// note //
+	glBindVertexArray(vao[2]);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(note_v), note_v, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+}
+
+void Test_state::read_file() {
+	FILE* fp;
+
+	switch (selected_song) {
+	case 0:
+		fp = fopen("soul.txt", "r");
+		break;
+	case 1:
+		fp = fopen("insta.txt", "r");
+		break;
+	case 2:
+		fp = fopen("kiss.txt", "r");
+		break;
+	default:
+		fp = fopen("error.txt", "r");
+		break;
+	}
+
+	if (fp == NULL) {
+		std::cout << "파일 불러오기 실패" << std::endl;
+		return;
+	}
+
+	GLint now_notenum = 0;
+
+	GLfloat note_time = 0.0;
+	GLint note_line = 0;
+	GLint play_line = 0;
+
+	fscanf(fp, "%f", &note_time);
+
+	while (note_time != 0.0) {
+		fscanf(fp, "%d %d", &note_line, &play_line);
+
+		noteinfos[now_notenum].Trans_time = glm::translate(noteinfos[now_notenum].Trans_time, glm::vec3(0.0, 0.0, -note_time));
+		noteinfos[now_notenum].Trans_line = glm::translate(noteinfos[now_notenum].Trans_line, glm::vec3(NOTE_X_FIRST + NOTE_TUM * (float)note_line, 0.0, 0.0));
+		noteinfos[now_notenum].Rotate_line = glm::rotate(noteinfos[now_notenum].Rotate_line, glm::radians(-30.0f * (float)play_line), glm::vec3(0.0, 1.0, 0.0));
+		noteinfos[now_notenum].playline = play_line;
+
+		max_notenum++;
+		now_notenum++;
+
+		fscanf(fp, "%f", &note_time);
+	}
+
+	std::cout << "파일 불러오기 완료" << std::endl;
+
+	fclose(fp);
 }
 

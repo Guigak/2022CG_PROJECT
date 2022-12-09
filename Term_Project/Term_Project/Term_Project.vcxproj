@@ -156,6 +156,7 @@
     <ClCompile Include="second_state.cpp" />
     <ClCompile Include="select_made_state.cpp" />
     <ClCompile Include="test.cpp" />
+    <ClCompile Include="test_state.cpp" />
     <ClCompile Include="title_state.cpp" />
     <ClCompile Include="vertices.cpp" />
   </ItemGroup>
@@ -174,6 +175,7 @@
     <ClInclude Include="select_made_state.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="state.h" />
+    <ClInclude Include="test_state.h" />
     <ClInclude Include="title_state.h" />
     <ClInclude Include="total.h" />
     <ClInclude Include="vertices.h" />

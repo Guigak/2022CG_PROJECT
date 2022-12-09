@@ -22,6 +22,7 @@
 typedef struct _NOTE {
 	clock_t time;
 	GLint noteline;
+	GLint playline;
 } NOTE;
 
 class Made_state : public  State {
@@ -54,7 +55,6 @@ private:
 	GLboolean Iswrited;
 
 	State* next_state;
-	GLint song_num;
 
 	// FMOD
 	FMOD_SYSTEM* soundsystem;

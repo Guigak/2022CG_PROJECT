@@ -17,6 +17,11 @@ extern GLfloat trigger_v[8][3];
 
 
 
+// note //
+extern GLfloat note_v[8][3];
+
+
+
 // vector //
 extern GLfloat cube_vt[6][3];
 

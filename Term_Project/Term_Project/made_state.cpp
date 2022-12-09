@@ -47,7 +47,6 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	InitBuffer();
 	state = 0;
 	next_state = nullptr;
-	song_num = -1;
 
 	//
 	switch (selected_song) {
@@ -63,9 +62,6 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	default:
 		break;
 	}
-
-	start_time = clock();
-	FMOD_Channel_SetVolume(bgc, 0.25);
 }
 
 void Made_state::pause() {
@@ -83,8 +79,6 @@ void Made_state::exit() {
 	FMOD_Sound_Release(kiss);
 	FMOD_System_Close(soundsystem);
 	FMOD_System_Release(soundsystem);
-
-	closing();
 }
 
 void Made_state::handle_events(Event evnt) {
@@ -96,6 +90,7 @@ void Made_state::handle_events(Event evnt) {
 			if (!IspressedA) {
 				notes[note_num].time = clock() - start_time;
 				notes[note_num].noteline = 0;
+				notes[note_num].playline = selected_num;
 				note_num++;
 
 				IspressedA = GL_TRUE;
@@ -105,6 +100,7 @@ void Made_state::handle_events(Event evnt) {
 			if (!IspressedS) {
 				notes[note_num].time = clock() - start_time;
 				notes[note_num].noteline = 1;
+				notes[note_num].playline = selected_num;
 				note_num++;
 
 				IspressedS = GL_TRUE;
@@ -114,6 +110,7 @@ void Made_state::handle_events(Event evnt) {
 			if (!IspressedD) {
 				notes[note_num].time = clock() - start_time;
 				notes[note_num].noteline = 2;
+				notes[note_num].playline = selected_num;
 				note_num++;
 
 				IspressedD = GL_TRUE;
@@ -123,6 +120,7 @@ void Made_state::handle_events(Event evnt) {
 			if (!IspressedF) {
 				notes[note_num].time = clock() - start_time;
 				notes[note_num].noteline = 3;
+				notes[note_num].playline = selected_num;
 				note_num++;
 
 				IspressedF = GL_TRUE;
@@ -169,12 +167,14 @@ void Made_state::handle_events(Event evnt) {
 	{
 		switch (evnt.special_key) {
 		case GLUT_KEY_LEFT:
-			if (camera_radian != 0) {
+			if (selected_num == 1) {
+				selected_num = 0;
 				Turning = -1;
 			}
 			break;
 		case GLUT_KEY_RIGHT:
-			if (camera_radian != max_selnum * TUM_RADIAN) {
+			if (selected_num == 0) {
+				selected_num = 1;
 				Turning = 1;
 			}
 			break;
@@ -195,7 +195,25 @@ void Made_state::update() {
 		brightness += Get_Game_Framework().get_frame_time() / 2;
 		if (brightness >= 1.0) {
 			brightness = 1.0;
-			state++;
+			state = 1;
+
+			//
+			switch (selected_song) {
+			case 0:
+				FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
+				break;
+			case 1:
+				FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
+				break;
+			case 2:
+				FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
+				break;
+			default:
+				break;
+			}
+
+			start_time = clock();
+			FMOD_Channel_SetVolume(bgc, 0.25);
 		}
 		break;
 	case 1:
@@ -205,7 +223,6 @@ void Made_state::update() {
 
 			if (camera_radian % TUM_RADIAN == 0) {
 				Turning = 0;
-				selected_num = camera_radian / TUM_RADIAN;
 			}
 		}
 		else if (Turning == 1) {
@@ -213,7 +230,6 @@ void Made_state::update() {
 
 			if (camera_radian % TUM_RADIAN == 0) {
 				Turning = 0;
-				selected_num = camera_radian / TUM_RADIAN;
 			}
 		}
 		break;
@@ -221,12 +237,7 @@ void Made_state::update() {
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
-				if (song_num < 0) { // 선택된 곡이 없음
-					Get_Game_Framework().change_state(next_state);
-				}
-				else {
-					Get_Game_Framework().change_state(next_state, song_num);
-				}
+				Get_Game_Framework().change_state(next_state, 0);
 			}
 			else {
 				exit();
@@ -415,11 +426,14 @@ void Made_state::write_file() {
 	while (notes[now_notenum].time != 0) {
 		GLdouble now_notetime = (GLdouble)notes[now_notenum].time / 100.0;
 		GLint now_noteline = notes[now_notenum].noteline;
+		GLint now_playline = notes[now_notenum].playline;
 
-		fprintf(fp, "%.2f %d\n", now_notetime, now_noteline);
+		fprintf(fp, "%.2f %d %d\n", now_notetime, now_noteline, now_playline);
 
 		now_notenum++;
 	}
+
+	fprintf(fp, "%.2f", 0.00f);
 
 	std::cout << "파일 저장 완료" << std::endl;
 	

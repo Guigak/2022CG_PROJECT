@@ -19,7 +19,15 @@
 #define TUM_RADIAN 10
 #define OPENINGTIME 1000
 
-class Select_Made_state : public  State {
+class NOTEINFO {
+public:
+	glm::mat4 Trans_time = glm::mat4(1.0f);
+	glm::mat4 Trans_line = glm::mat4(1.0f);
+	glm::mat4 Rotate_line = glm::mat4(1.0f);
+	GLint playline = 0;
+};
+
+class Test_state : public  State {
 private:
 	// default
 	GLuint shader_program;
@@ -39,15 +47,18 @@ private:
 
 	GLint max_selnum;
 	GLint selected_num;	// 0 - start, 1 - option
-	GLint song_num;
-
-	GLint mode_num;	// 0 - made, 1 - test
 
 	GLint Turning;
 
-	GLint state; 
-	State* next_state;
+	GLint state;
 
+	clock_t start_time;
+	GLfloat play_time;
+	glm::mat4 Trans_playtime;
+
+	GLboolean Iswrited;
+
+	State* next_state;
 
 	// FMOD
 	FMOD_SYSTEM* soundsystem;
@@ -59,6 +70,18 @@ private:
 	FMOD_CHANNEL* bgc;
 
 	GLboolean Soundplaying;
+
+	GLint selected_song;
+
+	// notes
+	NOTEINFO noteinfos[1000];
+	GLint note_num;
+	GLint max_notenum;
+
+	GLboolean IspressedA;
+	GLboolean IspressedS;
+	GLboolean IspressedD;
+	GLboolean IspressedF;
 
 public:
 	// default
@@ -74,6 +97,7 @@ public:
 	virtual void InitBuffer();
 
 	// system
+	void read_file();
 };
 
-Select_Made_state& Get_Select_Made_state();
+Test_state& Get_Test_state();
