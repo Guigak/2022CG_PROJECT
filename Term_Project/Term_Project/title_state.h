@@ -41,7 +41,7 @@ private:
 
 	GLint Turning;
 
-	GLboolean Stating;
+	GLint state; // 0 start, 1 run, 2 end
 
 	// command
 	GLint Made;
@@ -60,8 +60,6 @@ public:
 	virtual void InitBuffer();
 
 	// system
-	virtual void opening();
-	virtual void closing();
 };
 
 Title_state& Get_Title_state();

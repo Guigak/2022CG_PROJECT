@@ -71,14 +71,15 @@ void Game_Framework::draw() {
 void Game_Framework::run() {
 	if (running) {
 		stack.top()->update();
-		frame_time = (double)(clock() - current_time);
-		current_time += frame_time;
+		frame_time = (double)(clock() - current_time) / CLOCKS_PER_SEC;
+		current_time += frame_time * CLOCKS_PER_SEC;
 	}
 	else {
 		while (stack.size() > 0) {
 			stack.top()->exit();
 			stack.pop();
 		}
+		std::exit(0);
 	}
 }
 
