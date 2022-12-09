@@ -21,11 +21,11 @@ void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	max_selnum = 1;
 	selected_num = 0;
 	Turning = GL_FALSE;
+	state = 0;
 
 	//GenBuffer();
 	InitBuffer();
 
-	opening();
 }
 
 void Default_state::pause() {
