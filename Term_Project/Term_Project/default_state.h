@@ -40,7 +40,7 @@ private:
 
 	GLint Turning;
 	
-	GLboolean Stating;
+	GLint state; // 0 state, 1 run, 2 end
 
 public:
 	// default
@@ -56,8 +56,6 @@ public:
 	virtual void InitBuffer();
 
 	// system
-	virtual void opening();
-	virtual void closing();
 };
 
 Default_state& Get_Default_state();

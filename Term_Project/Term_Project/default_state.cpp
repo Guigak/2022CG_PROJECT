@@ -37,7 +37,7 @@ void Default_state::resume() {
 }
 
 void Default_state::exit() {
-	closing();
+
 }
 
 void Default_state::handle_events(Event evnt) {
@@ -47,7 +47,7 @@ void Default_state::handle_events(Event evnt) {
 		switch (evnt.key) {
 		case 'q':
 		case 'Q':
-			std::exit(0);
+			Get_Game_Framework().quit();
 			break;
 		case 13:
 			if (!Turning) {
@@ -98,22 +98,43 @@ void Default_state::handle_events(Event evnt) {
 }
 
 void Default_state::update() {
-	// turn //
-	if (Turning == -1) {
-		camera_radian -= 1;
-
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
+	switch (state)
+	{
+	case 0:
+		brightness += Get_Game_Framework().get_frame_time() / 2;
+		if (brightness >= 1.0) {
+			brightness = 1.0;
+			state++;
 		}
-	}
-	else if (Turning == 1) {
-		camera_radian += 1;
+		break;
+	case 1:
+		// turn //
+		if (Turning == -1) {
+			camera_radian -= 1;
 
-		if (camera_radian % TUM_RADIAN == 0) {
-			Turning = 0;
-			selected_num = camera_radian / TUM_RADIAN;
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
+			}
 		}
+		else if (Turning == 1) {
+			camera_radian += 1;
+
+			if (camera_radian % TUM_RADIAN == 0) {
+				Turning = 0;
+				selected_num = camera_radian / TUM_RADIAN;
+			}
+		}
+		break;
+	case 2:
+		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		if (brightness <= 0.0) {
+			exit();
+		}
+		break;
+	default:
+		cout << "state가 start, run, end 상태가 아닌 다른상태가 되는 오류 발생" << endl;
+		break;
 	}
 }
 
@@ -240,7 +261,7 @@ void Default_state::draw() {
 	}
 
 	// text //
-	if (!Turning && !Stating) {
+	if (!Turning && state == 1) {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 
@@ -282,24 +303,3 @@ void Default_state::InitBuffer() {
 	glEnableVertexAttribArray(0);
 }
 
-void Default_state::opening() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness += 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}
-
-void Default_state::closing() {
-	Stating = GL_TRUE;
-
-	for (int i = 0; i < OPENINGTIME; ++i) {
-		brightness -= 1.0 / (float)OPENINGTIME;
-		draw();
-	}
-
-	Stating = GL_FALSE;
-}
