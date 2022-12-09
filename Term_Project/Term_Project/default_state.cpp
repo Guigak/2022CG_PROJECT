@@ -1,5 +1,5 @@
 #include "default_state.h"
-#include "second_state.h"
+#include "title_state.h"
 
 Default_state default_state;
 
@@ -50,18 +50,23 @@ void Default_state::handle_events(Event evnt) {
 			std::exit(0);
 			break;
 		case 13:
-		{
-			switch (selected_num) {
-			case 0:
-				Get_Game_Framework().change_state(&Get_Default_state());
-				break;
-			case 1:
-				Get_Game_Framework().change_state(&Get_Second_state());
-				break;
-			default:
-				break;
+			if (!Turning) {
+				switch (selected_num) {
+				case 0:
+					Get_Game_Framework().change_state(&Get_Default_state());
+					break;
+				case 1:
+					Get_Game_Framework().change_state(&Get_Second_state());
+					break;
+				default:
+					break;
+				}
 			}
-		}
+			break;
+		case 27:
+			if (!Turning) {
+				Get_Game_Framework().change_state(&Get_Title_state());
+			}
 			break;
 		default:
 			break;

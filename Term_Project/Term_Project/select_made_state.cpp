@@ -1,4 +1,5 @@
 #include "select_made_state.h"
+#include "title_state.h"
 
 Select_Made_state select_made_state;
 
@@ -46,6 +47,13 @@ void Select_Made_state::resume() {
 }
 
 void Select_Made_state::exit() {
+	FMOD_Channel_Stop(bgc);
+	FMOD_Sound_Release(soul);
+	FMOD_Sound_Release(insta);
+	FMOD_Sound_Release(kiss);
+	FMOD_System_Close(soundsystem);
+	FMOD_System_Release(soundsystem);
+
 	closing();
 }
 
@@ -59,18 +67,23 @@ void Select_Made_state::handle_events(Event evnt) {
 			std::exit(0);
 			break;
 		case 13:
-		{
-			switch (selected_num) {
-			case 0:
-				Get_Game_Framework().change_state(&Get_Select_Made_state());
-				break;
-			case 1:
-				break;
-			default:
-				break;
+			if (!Turning) {
+				switch (selected_num) {
+				case 0:
+					Get_Game_Framework().change_state(&Get_Select_Made_state());
+					break;
+				case 1:
+					break;
+				default:
+					break;
+				}
 			}
-		}
-		break;
+			break;
+		case 27:
+			if (!Turning) {
+				Get_Game_Framework().change_state(&Get_Title_state());
+			}
+			break;
 		default:
 			break;
 		}

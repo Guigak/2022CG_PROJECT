@@ -19,8 +19,7 @@
 
 
 // define //
-
-
+#define UPDATETIME 10	// msec / 1msec = 0.001sec
 
 // function (declaration) //
 
@@ -218,7 +217,7 @@ GLvoid Special_Up(int key, int x, int y) {
 
 GLvoid Timer(int value) {
 	Get_Game_Framework().run();
-	glutTimerFunc(10, Timer, 1);
+	glutTimerFunc(UPDATETIME, Timer, 1);
 	glutPostRedisplay();
 }
 
@@ -292,7 +291,7 @@ void make_fragmentShader()
 
 // state
 void Initvalue() {
-	//Get_Game_Framework().init(&Get_Title_state(), s_program, vao, vbo);
-	Get_Game_Framework().init(&Get_Select_Made_state(), s_program, vao, vbo);
+	Get_Game_Framework().init(&Get_Title_state(), s_program, vao, vbo);
+	//Get_Game_Framework().init(&Get_Select_Made_state(), s_program, vao, vbo);
 	glutTimerFunc(1, Timer, 1);
 }
