@@ -79,7 +79,7 @@ public:
 	virtual void InitBuffer();
 
 	// system
-	GLfloat Get_Note_Speed();
+	GLint Get_Note_Speed();
 	GLint Get_Volume();
 };
 
