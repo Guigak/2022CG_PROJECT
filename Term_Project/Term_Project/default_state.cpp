@@ -14,6 +14,8 @@ void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	camera_y = 1.0;
 	camera_z = -3.0;
 
+	brightness = 0.0;
+
 	camera_radian = 0;
 
 	max_selnum = 1;
@@ -22,6 +24,8 @@ void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	//GenBuffer();
 	InitBuffer();
+
+	opening();
 }
 
 void Default_state::pause() {
@@ -33,6 +37,7 @@ void Default_state::resume() {
 }
 
 void Default_state::exit() {
+	closing();
 }
 
 void Default_state::handle_events(Event evnt) {
@@ -48,6 +53,7 @@ void Default_state::handle_events(Event evnt) {
 		{
 			switch (selected_num) {
 			case 0:
+				Get_Game_Framework().change_state(&Get_Default_state());
 				break;
 			case 1:
 				Get_Game_Framework().change_state(&Get_Second_state());
@@ -155,7 +161,7 @@ void Default_state::draw() {
 	glUniform3f(lightPosLocation, 0.0, 2.0, 0.0);
 
 	int lightColorLocation = glGetUniformLocation(shader_program, "lightColor"); //--- lightColor 값 전달: (1.0, 1.0, 1.0) 백색
-	glUniform3f(lightColorLocation, 1.0, 1.0, 1.0);
+	glUniform3f(lightColorLocation, brightness, brightness, brightness);
 
 	unsigned int viewPosLocation = glGetUniformLocation(shader_program, "viewPos"); //--- viewPos 값 전달: 카메라 위치
 	glUniform3f(viewPosLocation, cameraPos.x, cameraPos.y, cameraPos.z);
@@ -228,7 +234,7 @@ void Default_state::draw() {
 	}
 
 	// text //
-	if (!Turning) {
+	if (!Turning && !Stating) {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 
@@ -268,4 +274,26 @@ void Default_state::InitBuffer() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(trigger_v), trigger_v, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+}
+
+void Default_state::opening() {
+	Stating = GL_TRUE;
+
+	for (int i = 0; i < OPENINGTIME; ++i) {
+		brightness += 1.0 / (float)OPENINGTIME;
+		draw();
+	}
+
+	Stating = GL_FALSE;
+}
+
+void Default_state::closing() {
+	Stating = GL_TRUE;
+
+	for (int i = 0; i < OPENINGTIME; ++i) {
+		brightness -= 1.0 / (float)OPENINGTIME;
+		draw();
+	}
+
+	Stating = GL_FALSE;
 }

@@ -20,4 +20,8 @@ public:
 	// useful
 	virtual void GenBuffer() { cout << "genbuffer\n"; }
 	virtual void InitBuffer() { cout << "initbuffer\n"; }
+
+	// system
+	virtual void opening() { cout << "opening\n"; };
+	virtual void closing() { cout << "closing\n"; };
 };

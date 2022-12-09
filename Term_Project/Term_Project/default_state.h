@@ -16,6 +16,7 @@
 #include "vertices.h"
 
 #define TUM_RADIAN 10
+#define OPENINGTIME 1000
 
 class Default_state : public  State {
 private:
@@ -29,6 +30,9 @@ private:
 	GLfloat camera_y;
 	GLfloat camera_z;
 
+	// ight
+	GLfloat brightness;
+
 	// system
 	GLint camera_radian;	// * 3.0f
 
@@ -36,6 +40,8 @@ private:
 	GLint selected_num;	// 0 - start, 1 - option
 
 	GLint Turning;
+	
+	GLboolean Stating;
 
 public:
 	// default
@@ -49,6 +55,10 @@ public:
 	// useful
 	virtual void GenBuffer();
 	virtual void InitBuffer();
+
+	// system
+	virtual void opening();
+	virtual void closing();
 };
 
 Default_state& Get_Default_state();
