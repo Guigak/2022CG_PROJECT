@@ -22,7 +22,8 @@ void Default_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	selected_num = 0;
 	Turning = GL_FALSE;
 	state = 0;
-
+	next_state = nullptr;
+	song_num = -1; // 곡은 선택 안할 수 있으니 -1로 초기화
 	//GenBuffer();
 	InitBuffer();
 
@@ -51,8 +52,18 @@ void Default_state::handle_events(Event evnt) {
 			break;
 		case 13:
 			if (!Turning) {
-				state++;
-				
+				state = 2;
+				switch (selected_num) {
+				case 0:
+					next_state = &Get_Default_state();
+					break;
+				case 1:
+					next_state = &Get_Second_state();
+					break;
+				default:
+
+					break;
+				}
 			}
 			break;
 		case 27:
@@ -121,16 +132,16 @@ void Default_state::update() {
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
-			switch (selected_num) {
-			case 0:
-				Get_Game_Framework().change_state(&Get_Default_state());
-				break;
-			case 1:
-				Get_Game_Framework().change_state(&Get_Second_state());
-				break;
-			default:
+			if (next_state != nullptr) {
+				if (song_num < 0) { // 선택된 곡이 없음
+					Get_Game_Framework().change_state(next_state);
+				}
+				else {
+					Get_Game_Framework().change_state(next_state, song_num);
+				}
+			}
+			else {
 				exit();
-				break;
 			}
 		}
 		break;

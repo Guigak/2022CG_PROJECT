@@ -23,6 +23,7 @@ void Title_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	Turning = GL_FALSE;
 	state = 0;
 	Made = 0;
+	next_state = nullptr;
 
 	//GenBuffer();
 	InitBuffer();
@@ -55,7 +56,20 @@ void Title_state::handle_events(Event evnt) {
 			break;
 		case 13:
 		{
-			state++;
+			switch (selected_num) {
+			case 0:
+				next_state = &Get_Title_state();
+				break;
+			case 1:
+
+				break;
+			case 2:
+				next_state = &Get_Select_Made_state();
+				break;
+			default:
+				break;
+			}
+			state = 2;
 		}
 		break;
 		case 'm':
@@ -150,18 +164,11 @@ void Title_state::update() {
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
-			switch (selected_num) {
-			case 0:
-				Get_Game_Framework().change_state(&Get_Title_state());
-				break;
-			case 1:
-				break;
-			case 2:
-				Get_Game_Framework().change_state(&Get_Select_Made_state());
-				break;
-			default:
+			if (next_state != nullptr) {
+				Get_Game_Framework().change_state(next_state);
+			}
+			else {
 				exit();
-				break;
 			}
 		}
 		break;

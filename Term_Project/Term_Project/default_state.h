@@ -42,6 +42,9 @@ private:
 	
 	GLint state; // 0 state, 1 run, 2 end
 
+	State* next_state;
+	GLint song_num;
+
 public:
 	// default
 	virtual void enter(GLuint, GLuint*, GLuint*);	// shader program, vao, vbo

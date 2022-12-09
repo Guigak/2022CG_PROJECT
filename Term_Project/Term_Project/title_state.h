@@ -42,6 +42,7 @@ private:
 	GLint Turning;
 
 	GLint state; // 0 start, 1 run, 2 end
+	State* next_state;
 
 	// command
 	GLint Made;
