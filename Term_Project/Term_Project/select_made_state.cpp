@@ -1,12 +1,13 @@
 #include "select_made_state.h"
 #include "title_state.h"
 #include "made_state.h"
+#include "test_state.h"
 
 Select_Made_state select_made_state;
 
 Select_Made_state& Get_Select_Made_state() { return select_made_state; }
 
-void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
+void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint m) {
 	shader_program = program;
 	vao = a;
 	vbo = b;
@@ -21,7 +22,9 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	max_selnum = 2;
 	selected_num = 0;
-	song_num = -1; 
+	song_num = -1;
+
+	mode_num = m;
 
 	Turning = GL_FALSE;
 	state = 0;
@@ -75,9 +78,13 @@ void Select_Made_state::handle_events(Event evnt) {
 				case 1:
 				case 2:
 					song_num = selected_num;
-					state++;
-					next_state = &Get_Made_state();
-					//Get_Game_Framework().change_state(&Get_Made_state(), selected_num);
+					state = 2;
+					if (mode_num == 0) {
+						next_state = &Get_Made_state();
+					}
+					else {
+						next_state = &Get_Test_state();
+					}
 					break;
 				default:
 					break;

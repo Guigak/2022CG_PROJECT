@@ -45,6 +45,9 @@
     <ClCompile Include="made_state.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="test_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
     <ClCompile Include="option_state.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -92,6 +95,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="made_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="test_state.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="option_state.h">
