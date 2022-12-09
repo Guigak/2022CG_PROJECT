@@ -51,7 +51,7 @@ private:
 
 	State* next_state;
 	// data
-	GLfloat note_speed, volume;
+	GLint note_speed, volume;
 
 
 public:
@@ -59,8 +59,8 @@ public:
 		ifstream option_data("option_data.txt");
 		if (option_data.fail()) {
 			ofstream init_data("option_data.txt");
-			init_data << 1.0 << ' ' << 5;
-			note_speed = 1.0;
+			init_data << 10 << ' ' << 5;
+			note_speed = 10;
 			volume = 5;
 			return;
 		}
@@ -79,6 +79,8 @@ public:
 	virtual void InitBuffer();
 
 	// system
+	GLfloat Get_Note_Speed();
+	GLint Get_Volume();
 };
 
 Option_state& Get_Option_state();

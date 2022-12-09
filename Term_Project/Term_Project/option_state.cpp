@@ -83,12 +83,16 @@ void Option_state::handle_events(Event evnt) {
 			switch (option_sel_num)
 			{
 			case 0: // note speed
-				if(note_speed > 0.1)
-					note_speed -= 0.1;
+				if(note_speed > 1)
+					note_speed--;
+				cout << note_speed << endl;
+
 				break;
 			case 1: // volume
 				if (volume > 0)
-					volume -= 1;
+					volume--;
+				cout << volume << endl;
+
 				break;
 			default:
 				break;
@@ -101,14 +105,15 @@ void Option_state::handle_events(Event evnt) {
 			switch (option_sel_num)
 			{
 			case 0: // note speed
-				if (note_speed < 10)
-					note_speed += 0.1;
+				if (note_speed < 100)
+					note_speed++;
 				cout << note_speed << endl;
 				break;
 			case 1: // volume
 				if (volume < 10)
-					volume += 1;
+					volume++;
 				cout << volume << endl;
+
 				break;
 			default:
 				break;
@@ -306,14 +311,14 @@ void Option_state::draw() {
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 		if(option_sel_num == 0)
 			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
-		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"< NOTE SPEED >", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(note_speed).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.2f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"< NOTE SPEED >", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(note_speed / 10).substr(0, 3).c_str(), 1.0f, 0.0f, 0.0f);
 
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 		if (option_sel_num == 1)
 			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
-		RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"VOLUME", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(volume).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.15f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"< VOLUME >", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, -0.5f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(volume).c_str(), 1.0f, 0.0f, 0.0f);
 
 	}
 
@@ -343,3 +348,6 @@ void Option_state::InitBuffer() {
 	glEnableVertexAttribArray(0);
 }
 
+GLfloat Option_state::Get_Note_Speed() { return note_speed / 10; }
+
+GLint Option_state::Get_Volume() { return volume; }
