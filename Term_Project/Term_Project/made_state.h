@@ -19,6 +19,11 @@
 #define TUM_RADIAN 10
 #define OPENINGTIME 1000
 
+typedef struct _NOTE {
+	clock_t time;
+	GLint noteline;
+} NOTE;
+
 class Made_state : public  State {
 private:
 	// default
@@ -44,6 +49,10 @@ private:
 
 	GLboolean Stating;
 
+	clock_t start_time;
+
+	GLboolean Iswrited;
+
 	// FMOD
 	FMOD_SYSTEM* soundsystem;
 
@@ -56,6 +65,15 @@ private:
 	GLboolean Soundplaying;
 
 	GLint selected_song;
+
+	// notes
+	NOTE notes[1000] = { 0 };
+	GLint note_num;
+
+	GLboolean IspressedA;
+	GLboolean IspressedS;
+	GLboolean IspressedD;
+	GLboolean IspressedF;
 
 public:
 	// default
@@ -73,6 +91,8 @@ public:
 	// system
 	virtual void opening();
 	virtual void closing();
+
+	void write_file();
 };
 
 Made_state& Get_Made_state();

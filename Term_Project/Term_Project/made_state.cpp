@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "Made_state.h"
 #include "select_made_state.h"
 
@@ -26,13 +28,20 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	FMOD_System_Create(&soundsystem);
 	FMOD_System_Init(soundsystem, 32, FMOD_INIT_NORMAL, NULL);
 
-	FMOD_System_CreateSound(soundsystem, "Soulicious.mp3", FMOD_LOOP_NORMAL, 0, &soul);
-	FMOD_System_CreateSound(soundsystem, "Insta_Beat_Vixens.mp3", FMOD_LOOP_NORMAL, 0, &insta);
-	FMOD_System_CreateSound(soundsystem, "Kiss_The_Heavens.mp3", FMOD_LOOP_NORMAL, 0, &kiss);
+	FMOD_System_CreateSound(soundsystem, "Soulicious.mp3", FMOD_LOOP_OFF, 0, &soul);
+	FMOD_System_CreateSound(soundsystem, "Insta_Beat_Vixens.mp3", FMOD_LOOP_OFF, 0, &insta);
+	FMOD_System_CreateSound(soundsystem, "Kiss_The_Heavens.mp3", FMOD_LOOP_OFF, 0, &kiss);
 
 	Soundplaying = GL_FALSE;
 
 	selected_song = s;
+
+	note_num = 0;
+
+	IspressedA = GL_FALSE;
+	IspressedS = GL_FALSE;
+	IspressedD = GL_FALSE;
+	IspressedF = GL_FALSE;
 
 	//GenBuffer();
 	InitBuffer();
@@ -53,6 +62,8 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	default:
 		break;
 	}
+
+	start_time = clock();
 	FMOD_Channel_SetVolume(bgc, 0.25);
 }
 
@@ -80,20 +91,46 @@ void Made_state::handle_events(Event evnt) {
 	case KEYBOARD:
 	{
 		switch (evnt.key) {
-		case 'q':
-		case 'Q':
-			std::exit(0);
+		case 'a':
+			if (!IspressedA) {
+				notes[note_num].time = clock() - start_time;
+				notes[note_num].noteline = 0;
+				note_num++;
+
+				IspressedA = GL_TRUE;
+			}
+			break;
+		case 's':
+			if (!IspressedS) {
+				notes[note_num].time = clock() - start_time;
+				notes[note_num].noteline = 1;
+				note_num++;
+
+				IspressedS = GL_TRUE;
+			}
+			break;
+		case 'd':
+			if (!IspressedD) {
+				notes[note_num].time = clock() - start_time;
+				notes[note_num].noteline = 2;
+				note_num++;
+
+				IspressedD = GL_TRUE;
+			}
+			break;
+		case 'f':
+			if (!IspressedF) {
+				notes[note_num].time = clock() - start_time;
+				notes[note_num].noteline = 3;
+				note_num++;
+
+				IspressedF = GL_TRUE;
+			}
 			break;
 		case 13:
-			if (!Turning) {
-				switch (selected_num) {
-				case 0:
-					break;
-				case 1:
-					break;
-				default:
-					break;
-				}
+			if (!Iswrited) {
+				write_file();
+				Iswrited = GL_TRUE;
 			}
 			break;
 		case 27:
@@ -105,7 +142,27 @@ void Made_state::handle_events(Event evnt) {
 			break;
 		}
 	}
-	break;
+		break;
+	case KEYBOARD_UP:
+	{
+		switch (evnt.key) {
+		case 'a':
+			IspressedA = GL_FALSE;
+			break;
+		case 's':
+			IspressedS = GL_FALSE;
+			break;
+		case 'd':
+			IspressedD = GL_FALSE;
+			break;
+		case 'f':
+			IspressedF = GL_FALSE;
+			break;
+		default:
+			break;
+		}
+	}
+		break;
 	case SPECIAL:
 	{
 		switch (evnt.special_key) {
@@ -123,7 +180,7 @@ void Made_state::handle_events(Event evnt) {
 			break;
 		}
 	}
-	break;
+		break;
 	default:
 		break;
 	}
@@ -295,6 +352,45 @@ void Made_state::InitBuffer() {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(trigger_v), trigger_v, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
+}
+
+void Made_state::write_file() {
+	FILE* fp;
+
+	switch (selected_song) {
+	case 0:
+		fp = fopen("soul.txt", "w");
+		break;
+	case 1:
+		fp = fopen("insta.txt", "w");
+		break;
+	case 2:
+		fp = fopen("kiss.txt", "w");
+		break;
+	default:
+		fp = fopen("error.txt", "w");
+		break;
+	}
+
+	if (fp == NULL) {
+		std::cout << "파일 쓰기 실패" << std::endl;
+		return;
+	}
+
+	GLint now_notenum = 0;
+
+	while (notes[now_notenum].time != 0) {
+		GLdouble now_notetime = (GLdouble)notes[now_notenum].time / 100.0;
+		GLint now_noteline = notes[now_notenum].noteline;
+
+		fprintf(fp, "%.2f %d\n", now_notetime, now_noteline);
+
+		now_notenum++;
+	}
+
+	std::cout << "파일 저장 완료" << std::endl;
+	
+	fclose(fp);
 }
 
 void Made_state::opening() {
