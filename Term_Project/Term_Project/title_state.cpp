@@ -1,6 +1,6 @@
 #include "title_state.h"
 #include "select_made_state.h"
-
+#include "option_state.h"
 Title_state title_state;
 
 Title_state& Get_Title_state() { return title_state; }
@@ -61,7 +61,7 @@ void Title_state::handle_events(Event evnt) {
 				next_state = &Get_Title_state();
 				break;
 			case 1:
-
+				next_state = &Get_Option_state();
 				break;
 			case 2:
 				next_state = &Get_Select_Made_state();

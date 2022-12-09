@@ -47,7 +47,7 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	InitBuffer();
 	state = 0;
 	next_state = nullptr;
-	song_num = 0;
+	song_num = -1;
 
 	//
 	switch (selected_song) {
@@ -136,7 +136,7 @@ void Made_state::handle_events(Event evnt) {
 			break;
 		case 27:
 			if (!Turning) {
-				state++;
+				state = 2;
 				next_state = &Get_Select_Made_state();
 			}
 			break;

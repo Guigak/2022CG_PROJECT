@@ -1,12 +1,11 @@
-#include "select_made_state.h"
+#include "option_state.h"
 #include "title_state.h"
-#include "made_state.h"
 
-Select_Made_state select_made_state;
+Option_state option_state;
 
-Select_Made_state& Get_Select_Made_state() { return select_made_state; }
+Option_state& Get_Option_state() { return option_state; }
 
-void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
+void Option_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	shader_program = program;
 	vao = a;
 	vbo = b;
@@ -19,47 +18,33 @@ void Select_Made_state::enter(GLuint program, GLuint* a, GLuint* b) {
 
 	camera_radian = 0;
 
-	max_selnum = 2;
+	max_selnum = 0;
 	selected_num = 0;
-	song_num = -1; 
-
 	Turning = GL_FALSE;
 	state = 0;
-
-	//fmod
-	FMOD_System_Create(&soundsystem);
-	FMOD_System_Init(soundsystem, 32, FMOD_INIT_NORMAL, NULL);
-
-	FMOD_System_CreateSound(soundsystem, "Soulicious.mp3", FMOD_LOOP_NORMAL, 0, &soul);
-	FMOD_System_CreateSound(soundsystem, "Insta_Beat_Vixens.mp3", FMOD_LOOP_NORMAL, 0, &insta);
-	FMOD_System_CreateSound(soundsystem, "Kiss_The_Heavens.mp3", FMOD_LOOP_NORMAL, 0, &kiss);
-
-	Soundplaying = GL_FALSE;
+	next_state = nullptr;
+	option_sel_num = 0;
 
 	//GenBuffer();
 	InitBuffer();
 
 }
 
-void Select_Made_state::pause() {
+void Option_state::pause() {
 
 }
 
-void Select_Made_state::resume() {
+void Option_state::resume() {
 
 }
 
-void Select_Made_state::exit() {
-	FMOD_Channel_Stop(bgc);
-	FMOD_Sound_Release(soul);
-	FMOD_Sound_Release(insta);
-	FMOD_Sound_Release(kiss);
-	FMOD_System_Close(soundsystem);
-	FMOD_System_Release(soundsystem);
+void Option_state::exit() {
 
 }
 
-void Select_Made_state::handle_events(Event evnt) {
+void Option_state::handle_events(Event evnt) {
+	if (state != 1)
+		return;
 	switch (evnt.type) {
 	case KEYBOARD:
 	{
@@ -70,18 +55,11 @@ void Select_Made_state::handle_events(Event evnt) {
 			break;
 		case 13:
 			if (!Turning) {
-				switch (selected_num) {
-				case 0:
-				case 1:
-				case 2:
-					song_num = selected_num;
-					state++;
-					next_state = &Get_Made_state();
-					//Get_Game_Framework().change_state(&Get_Made_state(), selected_num);
-					break;
-				default:
-					break;
-				}
+				ofstream option_data("option_data.txt");
+				if (option_data.fail())
+					cout << "옵션 데이터 파일 열기 오류" << endl;
+				option_data << note_speed << ' ' << volume;
+				option_data.close();
 			}
 			break;
 		case 27:
@@ -102,11 +80,47 @@ void Select_Made_state::handle_events(Event evnt) {
 			if (camera_radian != 0) {
 				Turning = -1;
 			}
+			switch (option_sel_num)
+			{
+			case 0: // note speed
+				if(note_speed > 0.1)
+					note_speed -= 0.1;
+				break;
+			case 1: // volume
+				if (volume > 0)
+					volume -= 1;
+				break;
+			default:
+				break;
+			}
 			break;
 		case GLUT_KEY_RIGHT:
 			if (camera_radian != max_selnum * TUM_RADIAN) {
 				Turning = 1;
 			}
+			switch (option_sel_num)
+			{
+			case 0: // note speed
+				if (note_speed < 10)
+					note_speed += 0.1;
+				cout << note_speed << endl;
+				break;
+			case 1: // volume
+				if (volume < 10)
+					volume += 1;
+				cout << volume << endl;
+				break;
+			default:
+				break;
+			}
+			break;
+		case GLUT_KEY_UP:
+			if (option_sel_num > 0)
+				option_sel_num--;
+			break;
+		case GLUT_KEY_DOWN:
+			if (option_sel_num < MAX_OPTIONS - 1)
+				option_sel_num++;
 			break;
 		default:
 			break;
@@ -118,7 +132,7 @@ void Select_Made_state::handle_events(Event evnt) {
 	}
 }
 
-void Select_Made_state::update() {
+void Option_state::update() {
 	switch (state)
 	{
 	case 0:
@@ -146,43 +160,12 @@ void Select_Made_state::update() {
 				selected_num = camera_radian / TUM_RADIAN;
 			}
 		}
-
-		// sound
-		if (Turning) {
-			Soundplaying = GL_FALSE;
-			FMOD_Channel_Stop(bgc);
-		}
-		else {
-			if (!Soundplaying) {
-				switch (selected_num) {
-				case 0:
-					FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
-					break;
-				case 1:
-					FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
-					break;
-				case 2:
-					FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
-					break;
-				default:
-					break;
-				}
-
-				FMOD_Channel_SetVolume(bgc, 0.25);
-				Soundplaying = GL_TRUE;
-			}
-		}
 		break;
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
-				if (song_num < 0) { // 선택된 곡이 없음
-					Get_Game_Framework().change_state(next_state);
-				}
-				else {
-					Get_Game_Framework().change_state(next_state, song_num);
-				}
+				Get_Game_Framework().change_state(next_state);
 			}
 			else {
 				exit();
@@ -193,10 +176,9 @@ void Select_Made_state::update() {
 		cout << "state가 start, run, end 상태가 아닌 다른상태가 되는 오류 발생" << endl;
 		break;
 	}
-
 }
 
-void Select_Made_state::draw() {
+void Option_state::draw() {
 	// init //
 	InitBuffer();
 
@@ -322,31 +304,28 @@ void Select_Made_state::draw() {
 	if (!Turning && state == 1) {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
+		if(option_sel_num == 0)
+			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"< NOTE SPEED >", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(note_speed).c_str(), 1.0f, 0.0f, 0.0f);
 
-		switch (selected_num) {
-		case 0:
-			RenderString(-0.125f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Soulicious", 1.0f, 0.0f, 0.0f);
-			break;
-		case 1:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Insta Beat Vixens", 1.0f, 0.0f, 0.0f);
-			break;
-		case 2:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Kiss The Heavens", 1.0f, 0.0f, 0.0f);
-			break;
-		default:
-			break;
-		}
+		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
+		if (option_sel_num == 1)
+			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+		RenderString(-0.1f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"VOLUME", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(volume).c_str(), 1.0f, 0.0f, 0.0f);
+
 	}
 
 	glutSwapBuffers();
 }
 
-void Select_Made_state::GenBuffer() {
+void Option_state::GenBuffer() {
 	glGenVertexArrays(3, vao);
 	glGenBuffers(3, vbo);
 }
 
-void Select_Made_state::InitBuffer() {
+void Option_state::InitBuffer() {
 	// play line //
 	glBindVertexArray(vao[0]);
 
