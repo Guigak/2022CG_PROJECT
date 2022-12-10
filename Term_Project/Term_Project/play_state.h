@@ -117,6 +117,8 @@ public:
 	// system
 	void read_file();
 	void process_note(GLint);
+	void draw_another_line();
+
 	GLint Get_Good_Num() { return good_num; }
 	GLint Get_Miss_Num() { return miss_num; }
 

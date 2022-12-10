@@ -8,6 +8,9 @@
 #define NOTE_X_FIRST -0.75
 #define NOTE_TUM 0.5
 #define TRIGGER_TUM 1.0
+#define ANOTHER_Z 10.0
+#define MAX_PROJECT_Z 40.0f
+#define MAX_NOTE_Z -30.0f
 
 Play_state play_state;
 
@@ -294,6 +297,7 @@ void Play_state::update() {
 }
 
 void Play_state::draw() {
+	glViewport(0, 0, glutGet(0x0066), glutGet(0x0067));
 	// init //
 	InitBuffer();
 
@@ -332,7 +336,7 @@ void Play_state::draw() {
 	// projection //
 
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 20.0f);
+	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, MAX_PROJECT_Z);
 	//projection = glm::translate(projection, glm::vec3(0.0, 0.0, -2.0)); //--- 공간을 약간 뒤로 미뤄줌
 	unsigned int projectionLocation = glGetUniformLocation(shader_program, "proj"); //--- 투영 변환 값 설정
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
@@ -472,7 +476,7 @@ void Play_state::draw() {
 			else if (TR[3].z >= -TRIGGER_TUM) {	// trigger on
 				noteinfos[k].Trigger = GL_TRUE;
 			}
-			else if (TR[3].z <= -10.0) {
+			else if (TR[3].z <= MAX_NOTE_Z) {
 				trigger_notenum = k;
 				break;
 			}
@@ -506,6 +510,117 @@ void Play_state::draw() {
 	if (combo_num != 0 && state == 1) {
 		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"COMBO", 1.0f, 0.0f, 0.0f);
 		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(combo_num).c_str(), 1.0f, 0.0f, 0.0f);
+	}
+
+	// another line //
+	{
+		glViewport(glutGet(0x0066) / 3 * 2, glutGet(0x0067) / 3 * 2, glutGet(0x0066) / 3, glutGet(0x0067) / 3);
+
+		// camera //
+
+		cameraPos = glm::vec3(camera_x, camera_y, camera_z + ANOTHER_Z); //--- 카메라 위치
+		cameraDirection = glm::vec3(camera_x, camera_y, camera_z + ANOTHER_Z - 1.0); //--- 카메라 바라보는 방향
+		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //--- 카메라 위쪽 방향
+		view = glm::mat4(1.0f);
+
+		glm::mat4 Rotate_Camera = glm::mat4(1.0f);
+		Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians((float)((selected_num + 1) % 2) * 30.0f), glm::vec3(0.0, 1.0, 0.0));
+
+		view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+		view = view * Rotate_Camera;
+
+		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
+
+		// projection //
+
+		// light //
+		glUniform3f(lightPosLocation, 0.0, 2.0, ANOTHER_Z);
+
+		// default //
+
+		// draw //
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		TR = glm::mat4(1.0f);
+		TR_r1 = glm::mat4(1.0f);
+		TR_t = glm::mat4(1.0f);
+		TR_r2 = glm::mat4(1.0f);
+
+		TR_r1 = glm::rotate(TR_r1, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
+		TR_t = glm::translate(TR_t, glm::vec3(0.0, 0.0, camera_z + ANOTHER_Z - 3.0));
+		TR_r2 = glm::rotate(TR_r2, glm::radians((float)((selected_num + 1) % 2) * -30.0f), glm::vec3(0.0, 1.0, 0.0));
+
+		TR = TR_r2 * TR_t * TR_r1 * TR;
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+		// play line //
+		glBindVertexArray(vao[0]);
+
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
+		glUniform1i(IsText, 0);
+
+		for (int i = 0; i < 12; ++i) {
+			GLfloat* tcube_vt = cube_vt[i % 6];
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+			for (int j = 2 * i; j < 2 * i + 2; ++j) {
+				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+			}
+		}
+
+		// trigger rect //
+		glBindVertexArray(vao[1]);
+
+		glUniform3f(lightColorLocation, brightness, brightness, brightness);
+
+		glUniform3f(objColorLocation, 1.0, 1.0, 0.0);
+
+		for (int i = 0; i < 6; ++i) {
+			GLfloat* tcube_vt = cube_vt[i % 6];
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+			for (int j = 2 * i; j < 2 * i + 2; ++j) {
+				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+			}
+		}
+
+		// note //
+		if (play_time > 0.0) {
+			glBindVertexArray(vao[2]);
+
+			for (int k = draw_notenum; k < max_notenum; ++k) {
+				if (noteinfos[k].playline == 0) {
+					glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+				}
+				else {
+					glUniform3f(objColorLocation, 0.0, 0.0, 1.0);
+				}
+
+				TR = glm::mat4(1.0f);
+				TR = Trans_playtime * noteinfos[k].Trans_time * TR;
+
+				if (TR[3].z <= MAX_NOTE_Z) {
+					break;
+				}
+
+				TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Scale_speed * TR;
+				glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+				if (!noteinfos[k].Processed && noteinfos[k].playline != selected_num) {
+					for (int i = 0; i < 6; ++i) {
+						GLfloat* tcube_vt = cube_vt[i % 6];
+						glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+						glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+						for (int j = 2 * i; j < 2 * i + 2; ++j) {
+							glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	glutSwapBuffers();
@@ -603,6 +718,167 @@ void Play_state::process_note(GLint key) {
 				good_num++;
 				combo_num++;
 				return;
+			}
+		}
+	}
+}
+
+void Play_state::draw_another_line() {
+	glViewport(600, 450, 200, 150);
+
+	//--- 변경된 배경색 설정
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	//glClearColor(1.0, 1.0, 1.0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glm::mat4 TR = glm::mat4(1.0f);
+
+	// program //
+	glUseProgram(shader_program);
+
+	// camera //
+
+	glm::vec3 cameraPos = glm::vec3(camera_x, camera_y, camera_z); //--- 카메라 위치
+	glm::vec3 cameraDirection = glm::vec3(camera_x, camera_y, camera_z - 1.0); //--- 카메라 바라보는 방향
+	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //--- 카메라 위쪽 방향
+	glm::mat4 view = glm::mat4(1.0f);
+
+	glm::mat4 TR_O = glm::mat4(1.0f);
+	glm::mat4 TR_P = glm::mat4(1.0f);
+	TR_O = glm::translate(TR_O, glm::vec3(-camera_x, -camera_y, -camera_z));
+	TR_P = glm::translate(TR_P, glm::vec3(camera_x, camera_y, camera_z));
+
+	glm::mat4 Rotate_Camera = glm::mat4(1.0f);
+	Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians((float)((selected_num + 1) % 2) * 30.0f), glm::vec3(0.0, 1.0, 0.0));
+
+	view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
+	//view = TR_P * Rotate_Camera * TR_O * view;
+	view = view * Rotate_Camera;
+
+	unsigned int viewLocation = glGetUniformLocation(shader_program, "view"); //--- 뷰잉 변환 설정
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
+
+	// projection //
+
+	glm::mat4 projection = glm::mat4(1.0f);
+	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 20.0f);
+	//projection = glm::translate(projection, glm::vec3(0.0, 0.0, -2.0)); //--- 공간을 약간 뒤로 미뤄줌
+	unsigned int projectionLocation = glGetUniformLocation(shader_program, "proj"); //--- 투영 변환 값 설정
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
+
+	// light //
+
+	unsigned int lightPosLocation = glGetUniformLocation(shader_program, "lightPos"); //--- lightPos 값 전달: (0.0, 0.0, 5.0);
+	glUniform3f(lightPosLocation, 0.0, 2.0, 0.0);
+
+	int lightColorLocation = glGetUniformLocation(shader_program, "lightColor"); //--- lightColor 값 전달: (1.0, 1.0, 1.0) 백색
+	glUniform3f(lightColorLocation, brightness, brightness, brightness);
+
+	unsigned int viewPosLocation = glGetUniformLocation(shader_program, "viewPos"); //--- viewPos 값 전달: 카메라 위치
+	glUniform3f(viewPosLocation, cameraPos.x, cameraPos.y, cameraPos.z);
+
+	float ambientLightLocation = glGetUniformLocation(shader_program, "ambientLight");	// ambientLight~
+	glUniform1f(ambientLightLocation, 0.5);
+
+	// default //
+
+	glDisable(GL_DEPTH_TEST);
+
+	unsigned int modelLocation = glGetUniformLocation(shader_program, "model");
+
+	int objColorLocation = glGetUniformLocation(shader_program, "objectColor"); //--- object Color값 전달
+
+	int vectorLocation = glGetUniformLocation(shader_program, "tNormal"); // vector
+
+	unsigned int IsText = glGetUniformLocation(shader_program, "IsText");
+
+	// draw //
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	TR = glm::mat4(1.0f);
+	glm::mat4 TR_r1 = glm::mat4(1.0f);
+	glm::mat4 TR_t = glm::mat4(1.0f);
+	glm::mat4 TR_r2 = glm::mat4(1.0f);
+
+	TR_r1 = glm::rotate(TR_r1, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
+	TR_t = glm::translate(TR_t, glm::vec3(0.0, 0.0, camera_z - 3.0));
+	TR_r2 = glm::rotate(TR_r2, glm::radians(-30.0f), glm::vec3(0.0, 1.0, 0.0));
+
+	TR = TR_t * TR_r1 * TR;
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+
+
+	for (int k = 0; k <= max_selnum; ++k) {
+		// play line //
+		glBindVertexArray(vao[0]);
+
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
+		glUniform1i(IsText, 0);
+
+		for (int i = 0; i < 12; ++i) {
+			GLfloat* tcube_vt = cube_vt[i % 6];
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+			for (int j = 2 * i; j < 2 * i + 2; ++j) {
+				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+			}
+		}
+
+		// trigger rect //
+		glBindVertexArray(vao[1]);
+
+		glUniform3f(lightColorLocation, brightness, brightness, brightness);
+
+		glUniform3f(objColorLocation, 1.0, 1.0, 0.0);
+
+		for (int i = 0; i < 6; ++i) {
+			GLfloat* tcube_vt = cube_vt[i % 6];
+			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+			for (int j = 2 * i; j < 2 * i + 2; ++j) {
+				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+			}
+		}
+
+		TR = TR_r2 * TR;
+		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+	}
+
+	// note //
+	if (play_time > 0.0) {
+		glBindVertexArray(vao[2]);
+
+		for (int k = draw_notenum; k < max_notenum; ++k) {
+			if (noteinfos[k].playline == 0) {
+				glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+			}
+			else {
+				glUniform3f(objColorLocation, 0.0, 0.0, 1.0);
+			}
+
+			TR = glm::mat4(1.0f);
+			TR = Trans_playtime * noteinfos[k].Trans_time * TR;
+			
+			if (TR[3].z <= -10.0) {
+				break;
+			}
+
+			TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Scale_speed * TR;
+			glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+			if (!noteinfos[k].Processed) {
+				for (int i = 0; i < 6; ++i) {
+					GLfloat* tcube_vt = cube_vt[i % 6];
+					glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+					glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+					for (int j = 2 * i; j < 2 * i + 2; ++j) {
+						glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+					}
+				}
 			}
 		}
 	}

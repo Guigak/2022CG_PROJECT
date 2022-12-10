@@ -246,6 +246,7 @@ void Test_state::update() {
 }
 
 void Test_state::draw() {
+	glViewport(0, 0, glutGet(0x0066), glutGet(0x0067));
 	// init //
 	InitBuffer();
 

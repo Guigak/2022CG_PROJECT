@@ -92,7 +92,7 @@ void main(int argc, char** argv) //--- 윈도우 출력하고 콜백함수 설정
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(800, 600);
+	glutInitWindowSize(1000, 750);
 	glutCreateWindow("Example");
 	//--- GLEW 초기화하기
 	glewExperimental = GL_TRUE;
@@ -182,7 +182,7 @@ GLvoid drawScene()
 
 GLvoid Reshape(int w, int h) //--- 콜백 함수: 다시 그리기 콜백 함수 
 {
-	glViewport(0, 0, w, h);
+	glViewport(0, 0, glutGet(0x0066), glutGet(0x0067));
 }
 
 GLvoid Mouse(int button, int state, int x, int y) {

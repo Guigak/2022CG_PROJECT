@@ -236,6 +236,7 @@ void Made_state::update() {
 }
 
 void Made_state::draw() {
+	glViewport(0, 0, glutGet(0x0066), glutGet(0x0067));
 	// init //
 	InitBuffer();
 
