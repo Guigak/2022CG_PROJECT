@@ -270,7 +270,7 @@ void End_state::draw() {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 		
-		RenderString(-0.2f, 0.75f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"GOOD", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.15f, 0.75f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"GOOD", 1.0f, 0.0f, 0.0f);
 		RenderString(-0.1f, 0.5f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Good_Num()).c_str(), 1.0f, 0.0f, 0.0f);
 
 		RenderString(-0.15f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"MISS", 1.0f, 0.0f, 0.0f);

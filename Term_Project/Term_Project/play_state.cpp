@@ -450,7 +450,10 @@ void Play_state::draw() {
 			TR = Trans_playtime * noteinfos[k].Trans_time * TR;
 
 			if (TR[3].z >= 1.0) {	// miss
-				if (!noteinfos[k].Processed) {
+				noteinfos[k].Trigger = GL_FALSE;
+
+				if (!noteinfos[k].Processed) {	// miss
+					noteinfos[k].Processed = GL_TRUE;
 					combo_num = 0;
 					miss_num++;
 				}
@@ -460,14 +463,11 @@ void Play_state::draw() {
 				if ((end_time == 0) && (draw_notenum == max_notenum - 1)) {
 					end_time = clock();
 				}
-				continue;
-			}
-			else if (TR[3].z >= TRIGGER_TUM) {	// trigger off & prevent bug
-				noteinfos[k].Trigger = GL_FALSE;
 
 				if (Warning) {
 					Warning = GL_FALSE;
 				}
+				continue;
 			}
 			else if (TR[3].z >= -TRIGGER_TUM) {	// trigger on
 				noteinfos[k].Trigger = GL_TRUE;
