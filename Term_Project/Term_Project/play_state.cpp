@@ -1,16 +1,18 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "test_state.h"
+#include "Play_state.h"
+#include "option_state.h"
 #include "select_made_state.h"
 
 #define NOTE_X_FIRST -0.75
 #define NOTE_TUM 0.5
+#define TRIGGER_TUM 1.0
 
-Test_state test_state;
+Play_state play_state;
 
-Test_state& Get_Test_state() { return test_state; }
+Play_state& Get_Play_state() { return play_state; }
 
-void Test_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
+void Play_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	shader_program = program;
 	vao = a;
 	vbo = b;
@@ -21,11 +23,22 @@ void Test_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 
 	brightness = 0.0;
 
-	camera_radian = 0;
+	camera_radian = 0.0;
 
 	max_selnum = 1;
 	selected_num = 0;
 	Turning = GL_FALSE;
+
+	note_speed = (float)Get_Option_state().Get_Note_Speed() / 10.0;
+	volume = (float)Get_Option_state().Get_Volume() / 100.0;
+	Scale_speed = glm::mat4(1.0f);
+	Scale_speed = glm::scale(Scale_speed, glm::vec3(1.0, 1.0, note_speed));
+
+	combo_num = 0;
+	good_num = 0;
+	miss_num = 0;
+
+	Warning = GL_FALSE;
 
 	//fmod
 	FMOD_System_Create(&soundsystem);
@@ -43,11 +56,17 @@ void Test_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 		noteinfos[i].Trans_time = glm::mat4(1.0f);
 		noteinfos[i].Trans_line = glm::mat4(1.0f);
 		noteinfos[i].Rotate_line = glm::mat4(1.0f);
+		noteinfos[i].noteline = 0;
 		noteinfos[i].playline = 0;
+		noteinfos[i].Trigger = GL_FALSE;
+		noteinfos[i].Processed = GL_FALSE;
 	}
 
 	note_num = 0;
 	max_notenum = 0;
+
+	draw_notenum = 0;
+	trigger_notenum = 0;
 
 	IspressedA = GL_FALSE;
 	IspressedS = GL_FALSE;
@@ -63,15 +82,15 @@ void Test_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	next_state = nullptr;
 }
 
-void Test_state::pause() {
+void Play_state::pause() {
 
 }
 
-void Test_state::resume() {
+void Play_state::resume() {
 
 }
 
-void Test_state::exit() {
+void Play_state::exit() {
 	FMOD_Channel_Stop(bgc);
 	FMOD_Sound_Release(soul);
 	FMOD_Sound_Release(insta);
@@ -80,39 +99,36 @@ void Test_state::exit() {
 	FMOD_System_Release(soundsystem);
 }
 
-void Test_state::handle_events(Event evnt) {
+void Play_state::handle_events(Event evnt) {
 	switch (evnt.type) {
 	case KEYBOARD:
 	{
 		switch (evnt.key) {
 		case 'a':
 			if (!IspressedA) {
-
-				IspressedA = GL_TRUE;
+				std::cout << "AAA" << std::endl;
+				process_note(0);
 			}
 			break;
 		case 's':
 			if (!IspressedS) {
-
-				IspressedS = GL_TRUE;
+				std::cout << "SSS" << std::endl;
+				process_note(1);
 			}
 			break;
 		case 'd':
 			if (!IspressedD) {
-
-				IspressedD = GL_TRUE;
+				std::cout << "DDD" << std::endl;
+				process_note(2);
 			}
 			break;
 		case 'f':
 			if (!IspressedF) {
-
-				IspressedF = GL_TRUE;
+				std::cout << "FFF" << std::endl;
+				process_note(3);
 			}
 			break;
 		case 13:
-			if (!Iswrited) {
-				Iswrited = GL_TRUE;
-			}
 			break;
 		case 27:
 			if (!Turning) {
@@ -152,12 +168,20 @@ void Test_state::handle_events(Event evnt) {
 			if (selected_num == 1) {
 				selected_num = 0;
 				Turning = -1;
+
+				if (Warning) {
+					Warning = GL_FALSE;
+				}
 			}
 			break;
 		case GLUT_KEY_RIGHT:
 			if (selected_num == 0) {
 				selected_num = 1;
 				Turning = 1;
+
+				if (Warning) {
+					Warning = GL_FALSE;
+				}
 			}
 			break;
 		default:
@@ -170,7 +194,7 @@ void Test_state::handle_events(Event evnt) {
 	}
 }
 
-void Test_state::update() {
+void Play_state::update() {
 	switch (state)
 	{
 	case 0:
@@ -195,23 +219,25 @@ void Test_state::update() {
 			}
 
 			start_time = clock();
-			FMOD_Channel_SetVolume(bgc, 0.25);
+			FMOD_Channel_SetVolume(bgc, volume);
 			Trans_playtime = glm::mat4(1.0f);
 		}
 		break;
 	case 1:
 		// turn //
 		if (Turning == -1) {
-			camera_radian -= 1;
+			camera_radian -= Get_Game_Framework().get_frame_time() * TURN_SPEED;
 
-			if (camera_radian % TUM_RADIAN == 0) {
+			if (camera_radian <= 0.0) {
+				camera_radian = 0.0;
 				Turning = 0;
 			}
 		}
 		else if (Turning == 1) {
-			camera_radian += 1;
+			camera_radian += Get_Game_Framework().get_frame_time() * TURN_SPEED;
 
-			if (camera_radian % TUM_RADIAN == 0) {
+			if (camera_radian >= 30.0) {
+				camera_radian = 30, 0;
 				Turning = 0;
 			}
 		}
@@ -223,16 +249,20 @@ void Test_state::update() {
 		break;
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time() / 2;
+
 		if (brightness <= 0.0) {
 			for (int i = 0; i < MAX_NOTE; ++i) {
 				noteinfos[i].Trans_time = glm::mat4(1.0f);
 				noteinfos[i].Trans_line = glm::mat4(1.0f);
 				noteinfos[i].Rotate_line = glm::mat4(1.0f);
+				noteinfos[i].noteline = 0;
 				noteinfos[i].playline = 0;
+				noteinfos[i].Trigger = GL_FALSE;
+				noteinfos[i].Processed = GL_FALSE;
 			}
 
 			if (next_state != nullptr) {
-				Get_Game_Framework().change_state(next_state, 2);
+				Get_Game_Framework().change_state(next_state, 0);
 			}
 			else {
 				exit();
@@ -245,7 +275,7 @@ void Test_state::update() {
 	}
 }
 
-void Test_state::draw() {
+void Play_state::draw() {
 	// init //
 	InitBuffer();
 
@@ -272,7 +302,7 @@ void Test_state::draw() {
 	TR_P = glm::translate(TR_P, glm::vec3(camera_x, camera_y, camera_z));
 
 	glm::mat4 Rotate_Camera = glm::mat4(1.0f);
-	Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians((float)camera_radian * 3.0f), glm::vec3(0.0, 1.0, 0.0));
+	Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians(camera_radian), glm::vec3(0.0, 1.0, 0.0));
 
 	view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
 	//view = TR_P * Rotate_Camera * TR_O * view;
@@ -284,7 +314,7 @@ void Test_state::draw() {
 	// projection //
 
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 15.0f);
+	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 20.0f);
 	//projection = glm::translate(projection, glm::vec3(0.0, 0.0, -2.0)); //--- 공간을 약간 뒤로 미뤄줌
 	unsigned int projectionLocation = glGetUniformLocation(shader_program, "proj"); //--- 투영 변환 값 설정
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
@@ -315,7 +345,7 @@ void Test_state::draw() {
 
 	unsigned int IsText = glGetUniformLocation(shader_program, "IsText");
 
-	// play line //
+	// draw //
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	TR = glm::mat4(1.0f);
@@ -331,11 +361,28 @@ void Test_state::draw() {
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 
 
+
 	for (int k = 0; k <= max_selnum; ++k) {
 		// play line //
 		glBindVertexArray(vao[0]);
 
-		glUniform3f(objColorLocation, 0.0, 1.0, 0.0);
+		if (Warning) {
+			switch (selected_num) {
+			case 0:
+				glUniform3f(lightColorLocation, 0.0, 0.0, brightness);
+				break;
+			case 1:
+				glUniform3f(lightColorLocation, brightness, 0.0, 0.0);
+				break;
+			default:
+				break;
+			}
+		}
+		else {
+			glUniform3f(lightColorLocation, brightness, brightness, brightness);
+		}
+
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
 		glUniform1i(IsText, 0);
 
 		for (int i = 0; i < 12; ++i) {
@@ -350,6 +397,8 @@ void Test_state::draw() {
 
 		// trigger rect //
 		glBindVertexArray(vao[1]);
+
+		glUniform3f(lightColorLocation, brightness, brightness, brightness);
 
 		glUniform3f(objColorLocation, 1.0, 1.0, 0.0);
 
@@ -368,40 +417,84 @@ void Test_state::draw() {
 	}
 
 	// note //
-	glBindVertexArray(vao[2]);
+	if (play_time > 0.0) {
+		glBindVertexArray(vao[2]);
 
-	for (int k = 0; k < max_notenum; ++k) {
-		if (noteinfos[k].playline == 0) {
-			glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
-		}
-		else {
-			glUniform3f(objColorLocation, 0.0, 0.0, 1.0);
-		}
+		for (int k = draw_notenum; k < max_notenum; ++k) {
+			if (noteinfos[k].playline == 0) {
+				glUniform3f(objColorLocation, 1.0, 0.0, 0.0);
+			}
+			else {
+				glUniform3f(objColorLocation, 0.0, 0.0, 1.0);
+			}
 
-		TR = glm::mat4(1.0f);
-		TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Trans_playtime * noteinfos[k].Trans_time * TR;
-		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+			TR = glm::mat4(1.0f);
+			TR = Trans_playtime * noteinfos[k].Trans_time * TR;
 
-		for (int i = 0; i < 6; ++i) {
-			GLfloat* tcube_vt = cube_vt[i % 6];
-			glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
-			glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+			if (TR[3].z >= 1.0) {	// miss
+				if (!noteinfos[k].Processed) {
+					combo_num = 0;
+					miss_num++;
+				}
 
-			for (int j = 2 * i; j < 2 * i + 2; ++j) {
-				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+				draw_notenum = k;
+				continue;
+			}
+			else if (TR[3].z >= TRIGGER_TUM) {	// trigger off & prevent bug
+				noteinfos[k].Trigger = GL_FALSE;
+
+				if (Warning) {
+					Warning = GL_FALSE;
+				}
+			}
+			else if (TR[3].z >= -TRIGGER_TUM) {	// trigger on
+				noteinfos[k].Trigger = GL_TRUE;
+			}
+			else if (TR[3].z <= -10.0) {
+				trigger_notenum = k;
+				break;
+			}
+			else {
+				if (noteinfos[k].playline != selected_num) {
+					Warning = GL_TRUE;
+				}
+			}
+
+			TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Scale_speed * TR;
+			glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
+
+			if (!noteinfos[k].Processed) {
+				for (int i = 0; i < 6; ++i) {
+					GLfloat* tcube_vt = cube_vt[i % 6];
+					glm::vec3 nVector = glm::mat3(glm::transpose(glm::inverse(TR))) * glm::vec3(tcube_vt[0], tcube_vt[1], tcube_vt[2]);
+					glUniform3f(vectorLocation, nVector.x, nVector.y, nVector.z);
+
+					for (int j = 2 * i; j < 2 * i + 2; ++j) {
+						glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &line_l[j]);
+					}
+				}
 			}
 		}
+	}
+
+	// text //
+	glUniform1i(IsText, 1);
+	glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
+
+	if (combo_num != 0) {
+		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"COMBO", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(combo_num).c_str(), 1.0f, 0.0f, 0.0f);
 	}
 
 	glutSwapBuffers();
 }
 
-void Test_state::GenBuffer() {
+void Play_state::GenBuffer() {
 	glGenVertexArrays(3, vao);
 	glGenBuffers(3, vbo);
 }
 
-void Test_state::InitBuffer() {
+void Play_state::InitBuffer() {
 	// play line //
 	glBindVertexArray(vao[0]);
 
@@ -427,7 +520,7 @@ void Test_state::InitBuffer() {
 	glEnableVertexAttribArray(0);
 }
 
-void Test_state::read_file() {
+void Play_state::read_file() {
 	FILE* fp;
 
 	switch (selected_song) {
@@ -464,6 +557,7 @@ void Test_state::read_file() {
 		noteinfos[now_notenum].Trans_time = glm::translate(noteinfos[now_notenum].Trans_time, glm::vec3(0.0, 0.0, -note_time));
 		noteinfos[now_notenum].Trans_line = glm::translate(noteinfos[now_notenum].Trans_line, glm::vec3(NOTE_X_FIRST + NOTE_TUM * (float)note_line, 0.0, 0.0));
 		noteinfos[now_notenum].Rotate_line = glm::rotate(noteinfos[now_notenum].Rotate_line, glm::radians(-30.0f * (float)play_line), glm::vec3(0.0, 1.0, 0.0));
+		noteinfos[now_notenum].noteline = note_line;
 		noteinfos[now_notenum].playline = play_line;
 
 		max_notenum++;
@@ -477,3 +571,16 @@ void Test_state::read_file() {
 	fclose(fp);
 }
 
+void Play_state::process_note(GLint key) {
+	for (int i = draw_notenum; i < trigger_notenum; ++i) {
+		if (noteinfos[i].Trigger && !noteinfos[i].Processed) {
+			if ((noteinfos[i].noteline == key) && (noteinfos[i].playline == selected_num)) {
+				noteinfos[i].Processed = GL_TRUE;
+
+				good_num++;
+				combo_num++;
+				return;
+			}
+		}
+	}
+}

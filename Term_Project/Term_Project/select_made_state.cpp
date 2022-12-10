@@ -1,5 +1,6 @@
 #include "select_made_state.h"
 #include "title_state.h"
+#include "play_state.h"
 #include "made_state.h"
 #include "test_state.h"
 
@@ -79,11 +80,19 @@ void Select_Made_state::handle_events(Event evnt) {
 				case 2:
 					song_num = selected_num;
 					state = 2;
-					if (mode_num == 0) {
+
+					switch (mode_num) {
+					case 0:
+						next_state = &Get_Play_state();
+						break;
+					case 1:
 						next_state = &Get_Made_state();
-					}
-					else {
+						break;
+					case 2:
 						next_state = &Get_Test_state();
+						break;
+					default:
+						break;
 					}
 					break;
 				default:

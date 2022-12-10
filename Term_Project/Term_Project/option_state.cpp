@@ -110,7 +110,7 @@ void Option_state::handle_events(Event evnt) {
 				cout << note_speed << endl;
 				break;
 			case 1: // volume
-				if (volume < 10)
+				if (volume < 100)
 					volume++;
 				cout << volume << endl;
 

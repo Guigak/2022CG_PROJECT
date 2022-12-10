@@ -60,17 +60,18 @@ void Title_state::handle_events(Event evnt) {
 		{
 			switch (selected_num) {
 			case 0:
-				next_state = &Get_Title_state();
+				mode = 0;
+				next_state = &Get_Select_Made_state();
 				break;
 			case 1:
 				next_state = &Get_Option_state();
 				break;
 			case 2:
-				mode = 0;
+				mode = 1;
 				next_state = &Get_Select_Made_state();
 				break;
 			case 3:
-				mode = 1;
+				mode = 2;
 				next_state = &Get_Select_Made_state();
 				break;
 			default:
@@ -280,7 +281,7 @@ void Title_state::draw() {
 		// play line //
 		glBindVertexArray(vao[0]);
 
-		glUniform3f(objColorLocation, 0.0, 1.0, 0.0);
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
 		glUniform1i(IsText, 0);
 
 		for (int i = 0; i < 12; ++i) {

@@ -18,6 +18,7 @@
 
 #define TUM_RADIAN 10
 #define OPENINGTIME 1000
+#define MAX_NOTE 1000
 
 class NOTEINFO {
 public:
@@ -74,7 +75,7 @@ private:
 	GLint selected_song;
 
 	// notes
-	NOTEINFO noteinfos[1000];
+	NOTEINFO noteinfos[MAX_NOTE];
 	GLint note_num;
 	GLint max_notenum;
 
