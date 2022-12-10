@@ -177,7 +177,7 @@ void Made_state::update() {
 	switch (state)
 	{
 	case 0:
-		brightness += Get_Game_Framework().get_frame_time() / 2;
+		brightness += Get_Game_Framework().get_frame_time();
 		if (brightness >= 1.0) {
 			brightness = 1.0;
 			state = 1;
@@ -219,7 +219,7 @@ void Made_state::update() {
 		}
 		break;
 	case 2:
-		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		brightness -= Get_Game_Framework().get_frame_time();
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
 				Get_Game_Framework().change_state(next_state, 1);

@@ -104,7 +104,7 @@ void Default_state::update() {
 	switch (state)
 	{
 	case 0:
-		brightness += Get_Game_Framework().get_frame_time() / 2;
+		brightness += Get_Game_Framework().get_frame_time();
 		if (brightness >= 1.0) {
 			brightness = 1.0;
 			state++;
@@ -130,7 +130,7 @@ void Default_state::update() {
 		}
 		break;
 	case 2:
-		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		brightness -= Get_Game_Framework().get_frame_time();
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
 				if (song_num < 0) { // 선택된 곡이 없음

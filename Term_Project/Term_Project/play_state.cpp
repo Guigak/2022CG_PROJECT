@@ -212,7 +212,7 @@ void Play_state::update() {
 	switch (state)
 	{
 	case 0:
-		brightness += Get_Game_Framework().get_frame_time() / 2;
+		brightness += Get_Game_Framework().get_frame_time();
 		if (brightness >= 1.0) {
 			brightness = 1.0;
 			state = 1;
@@ -262,7 +262,7 @@ void Play_state::update() {
 		Trans_playtime = glm::translate(Trans_playtime, glm::vec3(0.0, 0.0, play_time));
 		break;
 	case 2:
-		brightness -= Get_Game_Framework().get_frame_time() / 2;
+		brightness -= Get_Game_Framework().get_frame_time();
 
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
