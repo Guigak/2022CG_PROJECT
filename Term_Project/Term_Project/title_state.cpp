@@ -30,8 +30,6 @@ void Title_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	FMOD_System_Create(&soundSystem); //--- FMOD system 객체 생성
 	FMOD_System_Init(soundSystem, 32, FMOD_INIT_NORMAL, NULL); //--- FMOD system 초기화
 	FMOD_System_CreateSound(soundSystem, "Warzone.mp3", FMOD_LOOP_NORMAL, 0, &soundFile);
-	FMOD_System_PlaySound(soundSystem, soundFile, NULL, 0, &channel); //--- 사운드 재생
-	FMOD_Channel_SetVolume(channel, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
 
 
 	//GenBuffer();
@@ -159,6 +157,9 @@ void Title_state::update() {
 		if (brightness >= 1.0) {
 			brightness = 1.0;
 			state++;
+
+			FMOD_System_PlaySound(soundSystem, soundFile, NULL, 0, &channel); //--- 사운드 재생
+			FMOD_Channel_SetVolume(channel, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
 		}
 		break;
 	case 1:

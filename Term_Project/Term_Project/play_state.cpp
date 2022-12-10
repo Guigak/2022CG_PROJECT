@@ -7,9 +7,10 @@
 
 #define NOTE_X_FIRST -0.75
 #define NOTE_TUM 0.5
-#define TRIGGER_TUM 1.0
+#define NOTE_Z_MIDDLE -0.125
+#define TRIGGER_TUM 0.75
 #define ANOTHER_Z 10.0
-#define MAX_NOTE_Z -30.0f
+#define MAX_NOTE_Z -25.0f
 
 Play_state play_state;
 
@@ -451,9 +452,9 @@ void Play_state::draw() {
 			}
 
 			TR = glm::mat4(1.0f);
-			TR = Trans_playtime * noteinfos[k].Trans_time * TR;
+			TR = Scale_speed * Trans_playtime * noteinfos[k].Trans_time * TR;
 
-			if (TR[3].z >= 1.0) {	// miss
+			if (TR[3].z >= NOTE_Z_MIDDLE + TRIGGER_TUM * note_speed) {	// miss
 				noteinfos[k].Trigger = GL_FALSE;
 
 				if (!noteinfos[k].Processed) {	// miss
@@ -473,20 +474,20 @@ void Play_state::draw() {
 				}
 				continue;
 			}
-			else if (TR[3].z >= -TRIGGER_TUM) {	// trigger on
+			else if (TR[3].z >= NOTE_Z_MIDDLE - TRIGGER_TUM * note_speed) {	// trigger on
 				noteinfos[k].Trigger = GL_TRUE;
 			}
-			else if (TR[3].z <= MAX_NOTE_Z) {
-				trigger_notenum = k;
-				break;
-			}
-			else {
+			else if (TR[3].z >= MAX_NOTE_Z * note_speed) {
 				if (noteinfos[k].playline != selected_num) {
 					Warning = GL_TRUE;
 				}
+				trigger_notenum = k;
+			}
+			else if (TR[3].z <= MAX_NOTE_Z) {
+				break;
 			}
 
-			TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Scale_speed * TR;
+			TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * TR;
 			glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 
 			if (!noteinfos[k].Processed) {
@@ -599,13 +600,13 @@ void Play_state::draw() {
 				}
 
 				TR = glm::mat4(1.0f);
-				TR = Trans_playtime * noteinfos[k].Trans_time * TR;
+				TR = Scale_speed * Trans_playtime * noteinfos[k].Trans_time * TR;
 
 				if (TR[3].z <= MAX_NOTE_Z) {
 					break;
 				}
 
-				TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * Scale_speed * TR;
+				TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * TR;
 				glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 
 				if (!noteinfos[k].Processed && noteinfos[k].playline != selected_num) {
