@@ -29,8 +29,8 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	FMOD_System_Init(soundsystem, 32, FMOD_INIT_NORMAL, NULL);
 
 	FMOD_System_CreateSound(soundsystem, "Soulicious.mp3", FMOD_LOOP_OFF, 0, &soul);
-	FMOD_System_CreateSound(soundsystem, "Insta_Beat_Vixens.mp3", FMOD_LOOP_OFF, 0, &insta);
-	FMOD_System_CreateSound(soundsystem, "Kiss_The_Heavens.mp3", FMOD_LOOP_OFF, 0, &kiss);
+	FMOD_System_CreateSound(soundsystem, "Animal_athletic_meeting.mp3", FMOD_LOOP_OFF, 0, &animal);
+	FMOD_System_CreateSound(soundsystem, "The_sea.mp3", FMOD_LOOP_OFF, 0, &sea);
 
 	Soundplaying = GL_FALSE;
 
@@ -47,21 +47,6 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	InitBuffer();
 	state = 0;
 	next_state = nullptr;
-
-	//
-	switch (selected_song) {
-	case 0:
-		FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
-		break;
-	case 1:
-		FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
-		break;
-	case 2:
-		FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
-		break;
-	default:
-		break;
-	}
 }
 
 void Made_state::pause() {
@@ -75,8 +60,8 @@ void Made_state::resume() {
 void Made_state::exit() {
 	FMOD_Channel_Stop(bgc);
 	FMOD_Sound_Release(soul);
-	FMOD_Sound_Release(insta);
-	FMOD_Sound_Release(kiss);
+	FMOD_Sound_Release(animal);
+	FMOD_Sound_Release(sea);
 	FMOD_System_Close(soundsystem);
 	FMOD_System_Release(soundsystem);
 }
@@ -203,10 +188,10 @@ void Made_state::update() {
 				FMOD_System_PlaySound(soundsystem, soul, NULL, 0, &bgc);
 				break;
 			case 1:
-				FMOD_System_PlaySound(soundsystem, insta, NULL, 0, &bgc);
+				FMOD_System_PlaySound(soundsystem, animal, NULL, 0, &bgc);
 				break;
 			case 2:
-				FMOD_System_PlaySound(soundsystem, kiss, NULL, 0, &bgc);
+				FMOD_System_PlaySound(soundsystem, sea, NULL, 0, &bgc);
 				break;
 			default:
 				break;
@@ -406,10 +391,10 @@ void Made_state::write_file() {
 		fp = fopen("soul.txt", "w");
 		break;
 	case 1:
-		fp = fopen("insta.txt", "w");
+		fp = fopen("animal.txt", "w");
 		break;
 	case 2:
-		fp = fopen("kiss.txt", "w");
+		fp = fopen("sea.txt", "w");
 		break;
 	default:
 		fp = fopen("error.txt", "w");

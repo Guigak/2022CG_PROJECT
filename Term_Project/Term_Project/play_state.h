@@ -77,8 +77,8 @@ private:
 	FMOD_SYSTEM* soundsystem;
 
 	FMOD_SOUND* soul;
-	FMOD_SOUND* insta;
-	FMOD_SOUND* kiss;
+	FMOD_SOUND* animal;
+	FMOD_SOUND* sea;
 
 	FMOD_CHANNEL* bgc;
 
