@@ -5,6 +5,8 @@
 
 #include "event.h"
 
+#define MAX_PROJECT_Z 40.0f
+
 using namespace std;
 
 class State {

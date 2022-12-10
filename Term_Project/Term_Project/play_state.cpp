@@ -9,7 +9,6 @@
 #define NOTE_TUM 0.5
 #define TRIGGER_TUM 1.0
 #define ANOTHER_Z 10.0
-#define MAX_PROJECT_Z 40.0f
 #define MAX_NOTE_Z -30.0f
 
 Play_state play_state;

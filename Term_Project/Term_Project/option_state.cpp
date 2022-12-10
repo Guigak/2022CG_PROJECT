@@ -223,7 +223,7 @@ void Option_state::draw() {
 	// projection //
 
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 15.0f);
+	projection = glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, MAX_PROJECT_Z);
 	//projection = glm::translate(projection, glm::vec3(0.0, 0.0, -2.0)); //--- 공간을 약간 뒤로 미뤄줌
 	unsigned int projectionLocation = glGetUniformLocation(shader_program, "proj"); //--- 투영 변환 값 설정
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &projection[0][0]);
@@ -274,7 +274,7 @@ void Option_state::draw() {
 		// play line //
 		glBindVertexArray(vao[0]);
 
-		glUniform3f(objColorLocation, 0.0, 1.0, 0.0);
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
 		glUniform1i(IsText, 0);
 
 		for (int i = 0; i < 12; ++i) {
