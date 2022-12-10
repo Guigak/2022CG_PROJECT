@@ -31,6 +31,7 @@ void Play_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 
 	start_time = 0;
 	play_time = 0.0;
+	end_time = 0;
 	Trans_playtime = glm::mat4(1.0f);
 
 	note_speed = (float)Get_Option_state().Get_Note_Speed() / 10.0;
@@ -258,8 +259,14 @@ void Play_state::update() {
 
 		// time
 		Trans_playtime = glm::mat4(1.0f);
-		play_time = (float)(clock() - start_time) / 100.0;
+		play_time = (float)(clock() - (float)start_time) / 100.0;
 		Trans_playtime = glm::translate(Trans_playtime, glm::vec3(0.0, 0.0, play_time));
+
+		// end
+		if ((end_time != 0) && (clock() - end_time >= 5000)) {
+			state = 2;
+			next_state = &Get_Select_Made_state();
+		}
 		break;
 	case 2:
 		brightness -= Get_Game_Framework().get_frame_time();
@@ -442,6 +449,10 @@ void Play_state::draw() {
 				}
 
 				draw_notenum = k;
+
+				if ((end_time == 0) && (draw_notenum == max_notenum - 1)) {
+					end_time = clock();
+				}
 				continue;
 			}
 			else if (TR[3].z >= TRIGGER_TUM) {	// trigger off & prevent bug
@@ -485,7 +496,7 @@ void Play_state::draw() {
 	glUniform1i(IsText, 1);
 	glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 
-	if (combo_num != 0) {
+	if (combo_num != 0 && state == 1) {
 		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"COMBO", 1.0f, 0.0f, 0.0f);
 		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(combo_num).c_str(), 1.0f, 0.0f, 0.0f);
 	}
@@ -564,11 +575,12 @@ void Play_state::read_file() {
 		noteinfos[now_notenum].noteline = note_line;
 		noteinfos[now_notenum].playline = play_line;
 
-		max_notenum++;
 		now_notenum++;
 
 		fscanf(fp, "%f", &note_time);
 	}
+
+	max_notenum = now_notenum;
 
 	std::cout << "파일 불러오기 완료" << std::endl;
 
@@ -576,7 +588,7 @@ void Play_state::read_file() {
 }
 
 void Play_state::process_note(GLint key) {
-	for (int i = draw_notenum; i < trigger_notenum; ++i) {
+	for (int i = draw_notenum; i < trigger_notenum + 1; ++i) {
 		if (noteinfos[i].Trigger && !noteinfos[i].Processed) {
 			if ((noteinfos[i].noteline == key) && (noteinfos[i].playline == selected_num)) {
 				noteinfos[i].Processed = GL_TRUE;
