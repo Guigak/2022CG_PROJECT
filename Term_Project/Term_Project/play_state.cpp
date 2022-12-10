@@ -240,7 +240,8 @@ void Play_state::update() {
 			}
 
 			start_time = clock();
-			FMOD_Channel_SetVolume(bgc, volume);
+			FMOD_Channel_SetVolume(bgc, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
+
 			Trans_playtime = glm::mat4(1.0f);
 		}
 		break;

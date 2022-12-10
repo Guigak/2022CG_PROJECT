@@ -3,6 +3,7 @@
 #include "play_state.h"
 #include "made_state.h"
 #include "test_state.h"
+#include "option_state.h"
 
 Select_Made_state select_made_state;
 
@@ -184,7 +185,7 @@ void Select_Made_state::update() {
 					break;
 				}
 
-				FMOD_Channel_SetVolume(bgc, 0.25);
+				FMOD_Channel_SetVolume(bgc, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
 				Soundplaying = GL_TRUE;
 			}
 		}

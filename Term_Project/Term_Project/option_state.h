@@ -13,6 +13,8 @@
 #include <fstream>
 #include <string>
 
+#include <fmod.h>
+
 #include "game_framework.h"
 
 #include "state.h"
@@ -52,6 +54,11 @@ private:
 	State* next_state;
 	// data
 	GLint note_speed, volume;
+
+	// fmod
+	FMOD_SYSTEM* soundSystem; //--- FMOD system 변수 선언
+	FMOD_SOUND* soundFile; //--- 사운드 객체 선언
+	FMOD_CHANNEL* channel; //--- 채널 선언
 
 
 public:

@@ -49,6 +49,12 @@ private:
 	// command
 	GLint Made;
 
+	// fmod
+	FMOD_SYSTEM* soundSystem; //--- FMOD system 변수 선언
+	FMOD_SOUND* soundFile; //--- 사운드 객체 선언
+	FMOD_CHANNEL* channel; //--- 채널 선언
+
+
 public:
 	// default
 	virtual void enter(GLuint, GLuint*, GLuint*);	// shader program, vao, vbo

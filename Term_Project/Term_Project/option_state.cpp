@@ -25,6 +25,11 @@ void Option_state::enter(GLuint program, GLuint* a, GLuint* b) {
 	next_state = nullptr;
 	option_sel_num = 0;
 
+	FMOD_System_Create(&soundSystem); //--- FMOD system 객체 생성
+	FMOD_System_Init(soundSystem, 32, FMOD_INIT_NORMAL, NULL); //--- FMOD system 초기화
+	FMOD_System_CreateSound(soundSystem, "Warzone.mp3", FMOD_LOOP_NORMAL, 0, &soundFile);
+	FMOD_System_PlaySound(soundSystem, soundFile, NULL, 0, &channel); //--- 사운드 재생
+	FMOD_Channel_SetVolume(channel, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
 	//GenBuffer();
 	InitBuffer();
 
@@ -39,6 +44,10 @@ void Option_state::resume() {
 }
 
 void Option_state::exit() {
+	FMOD_Channel_Stop(channel);
+	FMOD_Sound_Release(soundFile);
+	FMOD_System_Close(soundSystem);
+	FMOD_System_Release(soundSystem);
 
 }
 
@@ -148,6 +157,7 @@ void Option_state::update() {
 		}
 		break;
 	case 1:
+		FMOD_Channel_SetVolume(channel, 1.0 * Get_Option_state().Get_Volume() / 100.0); //--- 볼륨 조절하기
 		// turn //
 		if (Turning == -1) {
 			camera_radian -= 1;
