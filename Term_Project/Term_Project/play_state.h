@@ -56,6 +56,7 @@ private:
 	GLint Turning;
 
 	GLint state;
+	GLint mode;
 
 	clock_t start_time;
 	GLfloat play_time;
@@ -116,6 +117,9 @@ public:
 	// system
 	void read_file();
 	void process_note(GLint);
+	GLint Get_Good_Num() { return good_num; }
+	GLint Get_Miss_Num() { return miss_num; }
+
 };
 
 Play_state& Get_Play_state();

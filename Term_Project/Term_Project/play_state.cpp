@@ -3,6 +3,7 @@
 #include "Play_state.h"
 #include "option_state.h"
 #include "select_made_state.h"
+#include "end_state.h"
 
 #define NOTE_X_FIRST -0.75
 #define NOTE_TUM 0.5
@@ -78,6 +79,8 @@ void Play_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	IspressedD = GL_FALSE;
 	IspressedF = GL_FALSE;
 
+	mode = -1;
+
 	// file
 	read_file();
 
@@ -148,6 +151,7 @@ void Play_state::handle_events(Event evnt) {
 		case 27:
 			if (!Turning) {
 				state = 2;
+				mode = 0;
 				next_state = &Get_Select_Made_state();
 			}
 			break;
@@ -259,13 +263,13 @@ void Play_state::update() {
 
 		// time
 		Trans_playtime = glm::mat4(1.0f);
-		play_time = (float)(clock() - (float)start_time) / 100.0;
+		play_time = (float)(clock() - start_time) / 100.0;
 		Trans_playtime = glm::translate(Trans_playtime, glm::vec3(0.0, 0.0, play_time));
 
 		// end
 		if ((end_time != 0) && (clock() - end_time >= 5000)) {
 			state = 2;
-			next_state = &Get_Select_Made_state();
+			next_state = &Get_End_state();
 		}
 		break;
 	case 2:
@@ -273,7 +277,10 @@ void Play_state::update() {
 
 		if (brightness <= 0.0) {
 			if (next_state != nullptr) {
-				Get_Game_Framework().change_state(next_state, 0);
+				if(mode < 0)
+					Get_Game_Framework().change_state(next_state);
+				else
+					Get_Game_Framework().change_state(next_state, mode);
 			}
 			else {
 				exit();

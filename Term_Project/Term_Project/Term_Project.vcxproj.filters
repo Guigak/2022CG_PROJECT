@@ -54,6 +54,9 @@
     <ClCompile Include="play_state.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="end_state.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment.glsl">
@@ -107,6 +110,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="play_state.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="end_state.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

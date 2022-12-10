@@ -29,7 +29,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClCompile Include="default_state.cpp" />
     <ClCompile Include="dummy_state.cpp" />
+    <ClCompile Include="end_state.cpp" />
     <ClCompile Include="game_framework.cpp" />
     <ClCompile Include="made_state.cpp" />
     <ClCompile Include="mygame.cpp" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="default_state.h" />
     <ClInclude Include="dummy_state.h" />
+    <ClInclude Include="end_state.h" />
     <ClInclude Include="event.h" />
     <ClInclude Include="game_framework.h" />
     <ClInclude Include="made_state.h" />
