@@ -26,6 +26,19 @@ typedef struct _TPOINT {
 	GLfloat y;
 } TPOINT;
 
+// notes
+
+typedef struct _NOTE {
+	GLfloat time;
+	GLint noteline;
+} NOTE;
+
+typedef struct _NOTEINFO {
+	glm::mat4 Trans_time;
+	glm::mat4 Trans_line;
+	glm::mat4 Rotate_line;
+} NOTEINFO;
+
 // useful functions
 
 char* filetobuf(const char* file)

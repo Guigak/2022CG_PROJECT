@@ -284,6 +284,9 @@ void Select_Made_state::draw() {
 
 	unsigned int IsText = glGetUniformLocation(shader_program, "IsText");
 
+	float alpha = glGetUniformLocation(shader_program, "alpha");	// alpha
+	glUniform1f(alpha, 1.0);
+
 	// play line //
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
