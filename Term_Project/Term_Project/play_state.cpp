@@ -41,6 +41,7 @@ void Play_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	Scale_speed = glm::scale(Scale_speed, glm::vec3(1.0, 1.0, note_speed));
 
 	combo_num = 0;
+	max_combo = 0;
 	good_num = 0;
 	miss_num = 0;
 
@@ -485,6 +486,11 @@ void Play_state::draw() {
 
 				if (!noteinfos[k].Processed) {	// miss
 					noteinfos[k].Processed = GL_TRUE;
+
+					if (combo_num > max_combo) {
+						max_combo = combo_num;
+					}
+
 					combo_num = 0;
 					miss_num++;
 				}
@@ -492,6 +498,10 @@ void Play_state::draw() {
 				draw_notenum = k;
 
 				if ((end_time == 0) && (draw_notenum == max_notenum - 1)) {
+					if (combo_num > max_combo) {
+						max_combo = combo_num;
+					}
+
 					end_time = clock();
 				}
 
@@ -569,7 +579,7 @@ void Play_state::draw() {
 
 	if (combo_num != 0 && state == 1) {
 		RenderString(-0.1f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"COMBO", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(combo_num).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.035f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(combo_num).c_str(), 1.0f, 0.0f, 0.0f);
 	}
 
 	// another line //
@@ -583,11 +593,11 @@ void Play_state::draw() {
 		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f); //--- 카메라 위쪽 방향
 		view = glm::mat4(1.0f);
 
-		glm::mat4 Rotate_Camera = glm::mat4(1.0f);
-		Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians((float)((selected_num + 1) % 2) * 30.0f), glm::vec3(0.0, 1.0, 0.0));
+		/*glm::mat4 Rotate_Camera = glm::mat4(1.0f);
+		Rotate_Camera = glm::rotate(Rotate_Camera, glm::radians((float)((selected_num + 1) % 2) * 30.0f), glm::vec3(0.0, 1.0, 0.0));*/
 
 		view = glm::lookAt(cameraPos, cameraDirection, cameraUp);
-		view = view * Rotate_Camera;
+		//view = view * Rotate_Camera;
 
 		glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 
@@ -608,9 +618,8 @@ void Play_state::draw() {
 
 		TR_r1 = glm::rotate(TR_r1, glm::radians(20.0f), glm::vec3(1.0, 0.0, 0.0));
 		TR_t = glm::translate(TR_t, glm::vec3(0.0, 0.0, camera_z + ANOTHER_Z - 3.0));
-		TR_r2 = glm::rotate(TR_r2, glm::radians((float)((selected_num + 1) % 2) * -30.0f), glm::vec3(0.0, 1.0, 0.0));
 
-		TR = TR_r2 * TR_t * TR_r1 * TR;
+		TR = TR_t * TR_r1 * TR;
 		glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 
 		// play line //
@@ -665,7 +674,7 @@ void Play_state::draw() {
 					break;
 				}
 
-				TR = noteinfos[k].Rotate_line * TR_t * TR_r1 * noteinfos[k].Trans_line * TR;
+				TR = TR_t * TR_r1 * noteinfos[k].Trans_line * TR;
 				glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &TR[0][0]);
 
 				if (!noteinfos[k].Processed && noteinfos[k].playline != selected_num) {

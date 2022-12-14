@@ -47,6 +47,8 @@ void Made_state::enter(GLuint program, GLuint* a, GLuint* b, GLint s) {
 	InitBuffer();
 	state = 0;
 	next_state = nullptr;
+
+	Iswrited = GL_FALSE;
 }
 
 void Made_state::pause() {

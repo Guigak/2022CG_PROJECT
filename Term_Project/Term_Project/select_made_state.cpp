@@ -346,13 +346,13 @@ void Select_Made_state::draw() {
 
 		switch (selected_num) {
 		case 0:
-			RenderString(-0.125f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Soulicious", 1.0f, 0.0f, 0.0f);
+			RenderString(-0.12f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Soulicious", 1.0f, 0.0f, 0.0f);
 			break;
 		case 1:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Insta Beat Vixens", 1.0f, 0.0f, 0.0f);
+			RenderString(-0.25f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Animal athletic meeting", 1.0f, 0.0f, 0.0f);
 			break;
 		case 2:
-			RenderString(-0.2f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"Kiss The Heavens", 1.0f, 0.0f, 0.0f);
+			RenderString(-0.075f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"The sea", 1.0f, 0.0f, 0.0f);
 			break;
 		default:
 			break;

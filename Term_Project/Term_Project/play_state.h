@@ -116,6 +116,7 @@ private:
 	glm::mat4 Scale_speed;
 
 	GLint combo_num;
+	GLint max_combo;
 	GLint good_num;
 	GLint miss_num;
 
@@ -173,6 +174,7 @@ public:
 
 	GLint Get_Good_Num() { return good_num; }
 	GLint Get_Miss_Num() { return miss_num; }
+	GLint Get_Max_Combo() { return max_combo; }
 
 };
 

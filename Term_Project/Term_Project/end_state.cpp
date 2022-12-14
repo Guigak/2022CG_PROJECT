@@ -237,7 +237,7 @@ void End_state::draw() {
 		// play line //
 		glBindVertexArray(vao[0]);
 
-		glUniform3f(objColorLocation, 0.0, 1.0, 0.0);
+		glUniform3f(objColorLocation, 1.0, 0.0, 1.0);
 		glUniform1i(IsText, 0);
 
 		for (int i = 0; i < 12; ++i) {
@@ -274,14 +274,14 @@ void End_state::draw() {
 		glUniform1i(IsText, 1);
 		glUniform3f(objColorLocation, 1.0, 1.0, 1.0);
 		
-		RenderString(-0.15f, 0.75f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"GOOD", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.5f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Good_Num()).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.075f, 0.6f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"GOOD", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.035f, 0.4f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Good_Num()).c_str(), 1.0f, 0.0f, 0.0f);
 
-		RenderString(-0.15f, 0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"MISS", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Miss_Num()).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.065f, 0.2f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"MISS", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.035f, 0.0f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Miss_Num()).c_str(), 1.0f, 0.0f, 0.0f);
 
-		RenderString(-0.15f, -0.25f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"SCORE", 1.0f, 0.0f, 0.0f);
-		RenderString(-0.1f, -0.5f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Good_Num() - Get_Play_state().Get_Miss_Num()).c_str(), 1.0f, 0.0f, 0.0f);
+		RenderString(-0.15f, -0.2f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)"MAX COMBO", 1.0f, 0.0f, 0.0f);
+		RenderString(-0.035f, -0.4f, GLUT_BITMAP_TIMES_ROMAN_24, (unsigned char*)to_string(Get_Play_state().Get_Max_Combo()).c_str(), 1.0f, 0.0f, 0.0f);
 
 	}
 
