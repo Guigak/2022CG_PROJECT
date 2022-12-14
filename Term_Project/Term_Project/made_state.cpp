@@ -2,6 +2,7 @@
 
 #include "Made_state.h"
 #include "select_made_state.h"
+#include "option_state.h"
 
 Made_state made_state;
 
@@ -200,7 +201,7 @@ void Made_state::update() {
 			}
 
 			start_time = clock();
-			FMOD_Channel_SetVolume(bgc, 0.25);
+			FMOD_Channel_SetVolume(bgc, (float)Get_Option_state().Get_Volume() / 100.0);
 		}
 		break;
 	case 1:
